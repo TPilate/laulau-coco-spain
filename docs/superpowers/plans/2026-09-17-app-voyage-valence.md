@@ -107,8 +107,10 @@ export default defineNuxtConfig({
 Run: `npm run generate`
 Expected: la commande se termine sans erreur.
 
-Run: `grep -q "Laulau" .output/public/index.html && echo OK`
+Run: `grep -rq "Laulau" .output/public/ && echo OK`
 Expected: `OK`
+
+Note : avec `ssr: false`, `nuxt generate` produit une coquille SPA identique pour chaque route (le contenu Vue n'est pas rendu en HTML statique, seulement compilé dans les bundles JS sous `.output/public/_nuxt/`). Le grep doit donc porter sur tout `.output/public/` (récursif), jamais sur le seul fichier `index.html` d'une route.
 
 - [ ] **Step 8: Vérifier le typecheck**
 
@@ -1625,8 +1627,10 @@ await navigateTo('/carte')
 Run: `npm run generate`
 Expected: se termine sans erreur.
 
-Run: `grep -q "Guide" .output/public/guide/index.html && grep -q "barre-onglets" .output/public/guide/index.html && echo OK`
+Run: `grep -rq "Guide" .output/public/ && grep -rq "barre-onglets" .output/public/ && echo OK`
 Expected: `OK`
+
+(Grep récursif sur tout `.output/public/`, pas sur un seul `index.html` — voir la note du Task 1 sur le rendu SPA.)
 
 - [ ] **Step 10: Commit**
 
@@ -1765,8 +1769,10 @@ async function voirSurCarte(lieuId: string): Promise<void> {
 Run: `npm run generate`
 Expected: se termine sans erreur.
 
-Run: `grep -q "Casa Montaña" .output/public/guide/index.html && echo OK`
+Run: `grep -rq "Casa Montaña" .output/public/ && echo OK`
 Expected: `OK`
+
+(Grep récursif sur tout `.output/public/` — voir la note du Task 1 sur le rendu SPA.)
 
 - [ ] **Step 3: Commit**
 
@@ -1841,8 +1847,10 @@ async function voirSurCarte(lieuId: string): Promise<void> {
 Run: `npm run generate`
 Expected: se termine sans erreur.
 
-Run: `grep -q "Dîner tapas" .output/public/a-venir/index.html && echo OK`
+Run: `grep -rq "Dîner tapas" .output/public/ && echo OK`
 Expected: `OK`
+
+(Grep récursif sur tout `.output/public/` — voir la note du Task 1 sur le rendu SPA.)
 
 - [ ] **Step 3: Commit**
 
@@ -1919,8 +1927,10 @@ function ouvrir(id: string): void {
 Run: `npm run generate`
 Expected: se termine sans erreur.
 
-Run: `grep -q "Messages" .output/public/messages/index.html && echo OK`
+Run: `grep -rq "🔒 Message verrouillé\|Marquer comme lu" .output/public/ && echo OK`
 Expected: `OK`
+
+(Grep récursif sur tout `.output/public/` — voir la note du Task 1 sur le rendu SPA. On cherche un texte propre à cette page plutôt que "Messages", qui apparaît aussi dans le libellé de `BottomNav`.)
 
 - [ ] **Step 3: Commit**
 
@@ -1970,8 +1980,10 @@ const groupes = groupPhrasesParTheme(phrases)
 Run: `npm run generate`
 Expected: se termine sans erreur.
 
-Run: `grep -q "Buenos días" .output/public/phrases/index.html && echo OK`
+Run: `grep -rq "Buenos días" .output/public/ && echo OK`
 Expected: `OK`
+
+(Grep récursif sur tout `.output/public/` — voir la note du Task 1 sur le rendu SPA.)
 
 - [ ] **Step 3: Commit**
 
