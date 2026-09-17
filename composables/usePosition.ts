@@ -17,6 +17,7 @@ export function usePosition() {
   const positionManuelle = usePersistedRef<Coordonnees | null>('position:manuelle', null)
   const positionGps = ref<Coordonnees | null>(null)
   const rechercheGpsEnCours = ref(false)
+  const erreurGps = ref<GeolocationPositionError | null>(null)
   let idSuivi: number | null = null
 
   const position = computed<PositionActuelle | null>(() => {
@@ -34,9 +35,11 @@ export function usePosition() {
       (resultat) => {
         positionGps.value = { lat: resultat.coords.latitude, lng: resultat.coords.longitude }
         rechercheGpsEnCours.value = false
+        erreurGps.value = null
       },
-      () => {
+      (erreur) => {
         rechercheGpsEnCours.value = false
+        erreurGps.value = erreur
       },
       { enableHighAccuracy: true, timeout: 60000 },
     )
@@ -53,6 +56,8 @@ export function usePosition() {
   function activerModeGps(): void {
     mode.value = 'gps'
     positionGps.value = null
+    // Une nouvelle tentative repart d'une ardoise propre : pas d'erreur périmée affichée.
+    erreurGps.value = null
     demarrerSuiviGps()
   }
 
@@ -70,6 +75,7 @@ export function usePosition() {
     mode,
     position,
     rechercheGpsEnCours,
+    erreurGps,
     activerModeGps,
     definirPositionManuelle,
     arreterSuiviGps,

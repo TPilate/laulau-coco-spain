@@ -21,7 +21,14 @@ let carte: maplibregl.Map | null = null
 let marqueurPosition: maplibregl.Marker | null = null
 const marqueurs = new Map<string, maplibregl.Marker>()
 
-const { mode, position, rechercheGpsEnCours, activerModeGps, definirPositionManuelle } = usePosition()
+const {
+  mode,
+  position,
+  rechercheGpsEnCours,
+  erreurGps,
+  activerModeGps,
+  definirPositionManuelle,
+} = usePosition()
 const { pret: cartePrete, telechargementEnCours, assurerCarteEnCache } = useMapCache()
 const { consommerFocus } = useMapFocus()
 
@@ -155,6 +162,7 @@ watch(position, synchroniserMarqueurPosition)
           Position : {{ mode === 'gps' ? 'GPS' : 'Manuelle' }}
           <template v-if="mode === 'gps' && rechercheGpsEnCours"> (recherche…)</template>
         </span>
+        <p v-if="erreurGps" class="erreur-gps">GPS refusé — utilise « Je suis à… »</p>
         <button type="button" @click="activerModeGps">Activer le GPS</button>
         <button type="button" @click="modeSelectionManuelle = !modeSelectionManuelle">
           {{ modeSelectionManuelle ? 'Toucher la carte pour placer…' : 'Placer manuellement' }}
@@ -198,6 +206,12 @@ watch(position, synchroniserMarqueurPosition)
 
 .carte-ui > * {
   pointer-events: auto;
+}
+
+.erreur-gps {
+  margin: 0;
+  color: #b23c14;
+  font-weight: 600;
 }
 
 .statut-cache,
