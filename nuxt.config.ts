@@ -7,7 +7,12 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [{ rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/apple-touch-icon.png' }],
-      meta: [{ name: 'theme-color', content: '#E2572B' }],
+      meta: [
+        { name: 'theme-color', content: '#E2572B' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-title', content: 'Laulau & Coco' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+      ],
     },
   },
   pwa: {

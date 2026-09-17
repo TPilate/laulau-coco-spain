@@ -1,4 +1,4 @@
-export type Categorie = 'a-voir' | 'resto' | 'cafe' | 'plage' | 'autre'
+export type Categorie = 'a-voir' | 'resto' | 'cafe' | 'plage' | 'autre' | 'barrio' | 'aeroport'
 
 export interface Lieu {
   id: string
@@ -88,6 +88,46 @@ export const lieux: Lieu[] = [
     lat: 37.3757,
     lng: -5.9874,
     mot: 'Le coin idéal pour ralentir entre deux visites, sous les orangers et les palmiers.',
+  },
+  {
+    id: 'torre-del-oro',
+    nom: 'Torre del Oro',
+    categorie: 'a-voir',
+    lat: 37.3828,
+    lng: -5.9958,
+    mot: 'La tour dorée au bord du Guadalquivir, parfaite pour une pause en admirant le fleuve.',
+  },
+  {
+    id: 'barrio-triana',
+    nom: 'Barrio de Triana',
+    categorie: 'barrio',
+    lat: 37.3838,
+    lng: -6.0031,
+    mot: 'Le quartier des céramiques et du flamenco, juste de l’autre côté du pont.',
+  },
+  {
+    id: 'barrio-santa-cruz',
+    nom: 'Barrio de Santa Cruz',
+    categorie: 'barrio',
+    lat: 37.385,
+    lng: -5.9895,
+    mot: 'Un dédale de ruelles blanches et de patios fleuris juste derrière la cathédrale.',
+  },
+  {
+    id: 'alameda-de-hercules',
+    nom: 'Alameda de Hércules',
+    categorie: 'barrio',
+    lat: 37.3971,
+    lng: -5.9944,
+    mot: 'La place animée du soir, entre bars, terrasses et ambiance locale.',
+  },
+  {
+    id: 'aeropuerto-sevilla',
+    nom: 'Aeropuerto de Sevilla (SVQ)',
+    categorie: 'aeroport',
+    lat: 37.418,
+    lng: -5.8931,
+    mot: 'Aéroport de San Pablo, à environ 10 km du centre-ville.',
   },
 ]
 

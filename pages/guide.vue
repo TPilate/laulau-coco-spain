@@ -12,6 +12,8 @@ const libellesCategories: Record<Categorie, string> = {
   cafe: 'Cafés',
   plage: 'Plages',
   autre: 'Autres',
+  barrio: 'Quartiers',
+  aeroport: 'Aéroport',
 }
 
 async function voirSurCarte(lieuId: string): Promise<void> {

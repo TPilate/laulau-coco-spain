@@ -7,6 +7,7 @@ import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { Protocol } from 'pmtiles'
 import { lieux } from '~/data/content'
+import type { TypePointPersonnalise, PointPersonnalise } from '~/composables/usePointsPersonnalises'
 
 let protocoleEnregistre = false
 
@@ -31,6 +32,7 @@ const conteneurCarte = ref<HTMLDivElement | null>(null)
 let carte: maplibregl.Map | null = null
 let marqueurPosition: maplibregl.Marker | null = null
 const marqueurs = new Map<string, maplibregl.Marker>()
+const marqueursPersonnalises = new Map<string, maplibregl.Marker>()
 
 const {
   mode,
@@ -42,8 +44,19 @@ const {
 } = usePosition()
 const { pret: cartePrete, telechargementEnCours, assurerCarteEnCache } = useMapCache()
 const { consommerFocus } = useMapFocus()
+const {
+  points: pointsPersonnalises,
+  ajouterPoint,
+  modifierPoint,
+  supprimerPoint,
+} = usePointsPersonnalises()
 
 const modeSelectionManuelle = ref(false)
+const modeAjoutPoint = ref(false)
+const coordonneesNouveauPoint = ref<{ lat: number; lng: number } | null>(null)
+const typeNouveauPoint = ref<TypePointPersonnalise>('maison')
+const labelNouveauPoint = ref('')
+const pointEnEditionId = ref<string | null>(null)
 const erreurCache = ref(false)
 
 function centrerSur(lat: number, lng: number, zoom = 15): void {
@@ -75,6 +88,101 @@ function synchroniserMarqueurPosition(nouvellePosition: typeof position.value): 
   } else {
     marqueurPosition.setLngLat([nouvellePosition.lng, nouvellePosition.lat])
   }
+}
+
+function creerElementMarqueurPersonnalise(type: TypePointPersonnalise): HTMLDivElement {
+  const element = document.createElement('div')
+  element.className = 'marqueur-personnalise'
+  element.textContent = type === 'maison' ? '🏠' : '📌'
+  return element
+}
+
+function creerPopupPointPersonnalise(point: PointPersonnalise): maplibregl.Popup {
+  // Le popup doit pouvoir se fermer lui-même quand on clique « Éditer » : on le crée
+  // d'abord pour que les boutons puissent le capturer par fermeture lexicale.
+  const popup = new maplibregl.Popup({ offset: 24 })
+  const conteneur = document.createElement('div')
+  const titre = document.createElement('strong')
+  titre.textContent = point.label
+  const boutonEditer = document.createElement('button')
+  boutonEditer.type = 'button'
+  boutonEditer.textContent = 'Éditer'
+  boutonEditer.addEventListener('click', () => {
+    popup.remove()
+    commencerEditionPoint(point)
+  })
+  const boutonSupprimer = document.createElement('button')
+  boutonSupprimer.type = 'button'
+  boutonSupprimer.textContent = 'Supprimer'
+  boutonSupprimer.addEventListener('click', () => supprimerPoint(point.id))
+  conteneur.append(titre, document.createElement('br'), boutonEditer, boutonSupprimer)
+  return popup.setDOMContent(conteneur)
+}
+
+function synchroniserPointsPersonnalises(): void {
+  if (!carte) return
+  const idsActuels = new Set(pointsPersonnalises.value.map((point) => point.id))
+  for (const [id, marqueur] of marqueursPersonnalises) {
+    if (!idsActuels.has(id)) {
+      marqueur.remove()
+      marqueursPersonnalises.delete(id)
+    }
+  }
+  for (const point of pointsPersonnalises.value) {
+    if (marqueursPersonnalises.has(point.id)) continue
+    const marqueur = new maplibregl.Marker({
+      element: creerElementMarqueurPersonnalise(point.type),
+      anchor: 'bottom',
+    })
+      .setLngLat([point.lng, point.lat])
+      .setPopup(creerPopupPointPersonnalise(point))
+      .addTo(carte)
+    marqueursPersonnalises.set(point.id, marqueur)
+  }
+}
+
+function basculerModeSelectionManuelle(): void {
+  annulerAjoutPoint()
+  modeSelectionManuelle.value = !modeSelectionManuelle.value
+  if (modeSelectionManuelle.value) modeAjoutPoint.value = false
+}
+
+function basculerModeAjoutPoint(): void {
+  annulerAjoutPoint()
+  modeAjoutPoint.value = !modeAjoutPoint.value
+  if (modeAjoutPoint.value) modeSelectionManuelle.value = false
+}
+
+function commencerEditionPoint(point: PointPersonnalise): void {
+  modeSelectionManuelle.value = false
+  modeAjoutPoint.value = false
+  pointEnEditionId.value = point.id
+  typeNouveauPoint.value = point.type
+  labelNouveauPoint.value = point.label
+  coordonneesNouveauPoint.value = { lat: point.lat, lng: point.lng }
+}
+
+function annulerAjoutPoint(): void {
+  coordonneesNouveauPoint.value = null
+  labelNouveauPoint.value = ''
+  typeNouveauPoint.value = 'maison'
+  pointEnEditionId.value = null
+}
+
+function validerAjoutPoint(): void {
+  if (!coordonneesNouveauPoint.value) return
+  if (!labelNouveauPoint.value.trim()) return
+  if (pointEnEditionId.value) {
+    modifierPoint(pointEnEditionId.value, typeNouveauPoint.value, labelNouveauPoint.value)
+  } else {
+    ajouterPoint(
+      typeNouveauPoint.value,
+      labelNouveauPoint.value,
+      coordonneesNouveauPoint.value.lat,
+      coordonneesNouveauPoint.value.lng,
+    )
+  }
+  annulerAjoutPoint()
 }
 
 onMounted(() => {
@@ -127,10 +235,19 @@ watch(
         marqueurs.set(lieu.id, marqueur)
       }
 
+      synchroniserPointsPersonnalises()
+
       carte!.on('click', (evenementClic) => {
-        if (!modeSelectionManuelle.value) return
-        definirPositionManuelle({ lat: evenementClic.lngLat.lat, lng: evenementClic.lngLat.lng })
-        modeSelectionManuelle.value = false
+        const { lat, lng } = evenementClic.lngLat
+        if (modeSelectionManuelle.value) {
+          definirPositionManuelle({ lat, lng })
+          modeSelectionManuelle.value = false
+          return
+        }
+        if (modeAjoutPoint.value) {
+          coordonneesNouveauPoint.value = { lat, lng }
+          modeAjoutPoint.value = false
+        }
       })
 
       const demande = consommerFocus()
@@ -157,11 +274,13 @@ onUnmounted(() => {
   marqueurPosition?.remove()
   marqueurPosition = null
   marqueurs.clear()
+  marqueursPersonnalises.clear()
   carte?.remove()
   carte = null
 })
 
 watch(position, synchroniserMarqueurPosition)
+watch(pointsPersonnalises, synchroniserPointsPersonnalises, { deep: true })
 </script>
 
 <template>
@@ -188,10 +307,35 @@ watch(position, synchroniserMarqueurPosition)
         </span>
         <p v-if="erreurGps" class="erreur-gps">GPS refusé — utilise « Je suis à… »</p>
         <button type="button" @click="activerModeGps">Activer le GPS</button>
-        <button type="button" @click="modeSelectionManuelle = !modeSelectionManuelle">
+        <button type="button" @click="basculerModeSelectionManuelle">
           {{ modeSelectionManuelle ? 'Toucher la carte pour placer…' : 'Placer manuellement' }}
         </button>
         <button type="button" @click="recentrer">Recentrer</button>
+      </div>
+
+      <div class="controles-points">
+        <button type="button" @click="basculerModeAjoutPoint">
+          {{ modeAjoutPoint ? 'Toucher la carte pour ajouter…' : 'Ajouter un point' }}
+        </button>
+
+        <div v-if="coordonneesNouveauPoint" class="formulaire-point">
+          <strong>{{ pointEnEditionId ? 'Éditer le point' : 'Nouveau point' }}</strong>
+          <label>
+            Type
+            <select v-model="typeNouveauPoint">
+              <option value="maison">🏠 Maison</option>
+              <option value="autre">📌 Autre</option>
+            </select>
+          </label>
+          <label>
+            Nom
+            <input v-model="labelNouveauPoint" type="text" placeholder="Ex. Notre maison">
+          </label>
+          <div class="formulaire-actions">
+            <button type="button" @click="validerAjoutPoint">{{ pointEnEditionId ? 'Enregistrer' : 'Ajouter' }}</button>
+            <button type="button" @click="annulerAjoutPoint">Annuler</button>
+          </div>
+        </div>
       </div>
 
       <details class="je-suis-a">
@@ -240,10 +384,33 @@ watch(position, synchroniserMarqueurPosition)
 
 .statut-cache,
 .controles-position,
+.controles-points,
 .je-suis-a {
   background: rgba(255, 248, 240, 0.95);
   border-radius: 8px;
   padding: 6px 10px;
   font-size: 0.85rem;
+}
+
+.formulaire-point {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.formulaire-actions {
+  display: flex;
+  gap: 6px;
+}
+</style>
+
+<style>
+/* Non scopé : cet élément est créé via document.createElement pour maplibre-gl,
+   pas par le rendu Vue, donc l'attribut data-v-* du scope ne lui est jamais appliqué. */
+.marqueur-personnalise {
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
 }
 </style>
