@@ -6,9 +6,7 @@ describe('creerStyleSeville', () => {
     const style = creerStyleSeville('https://exemple-app.test')
     expect(style.glyphs).toBe('https://exemple-app.test/style/fonts/{fontstack}/{range}.pbf')
     expect(style.sprite).toBe('https://exemple-app.test/style/sprites/light')
-    expect((style.sources.protomaps as { url: string }).url).toBe(
-      'pmtiles://https://exemple-app.test/seville.pmtiles',
-    )
+    expect((style.sources.protomaps as { url: string }).url).toBe('pmtiles://https://exemple-app.test/seville.pmtiles')
   })
 
   it('définit au moins une couche de rendu', () => {

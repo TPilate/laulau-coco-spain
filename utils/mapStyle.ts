@@ -10,8 +10,7 @@ export function creerStyleSeville(origin: string): StyleSpecification {
       protomaps: {
         type: 'vector',
         url: `pmtiles://${origin}/seville.pmtiles`,
-        attribution:
-          '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
+        attribution: '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
       },
     },
     layers: layers('protomaps', namedFlavor('light'), { lang: 'fr' }),

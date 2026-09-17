@@ -46,7 +46,7 @@ export const lieux: Lieu[] = [
     nom: 'Real Alcázar de Sevilla',
     categorie: 'a-voir',
     lat: 37.3831,
-    lng: -5.9920,
+    lng: -5.992,
     mot: 'Palais aux jardins extraordinaires. On prend le temps de se perdre dans les patios.',
   },
   {
@@ -141,7 +141,7 @@ export const messages: Message[] = [
     id: 'message-2',
     unlockAt: '2026-09-23T09:00:00+02:00',
     titre: 'Mi-séjour',
-    texte: "Déjà la moitié du voyage ! Profite bien de la plage cet après-midi, je pense fort à toi.",
+    texte: 'Déjà la moitié du voyage ! Profite bien de la plage cet après-midi, je pense fort à toi.',
   },
   {
     id: 'message-3',
@@ -222,57 +222,57 @@ export const phrases: Phrase[] = [
 
 export const emergencyInformations = [
   {
-    id: "1",
-    service: "Urgences Générales (Européen)",
-    numero: "112",
-    usage: "Toute urgence (médicale, police, pompiers)"
+    id: '1',
+    service: 'Urgences Générales (Européen)',
+    numero: '112',
+    usage: 'Toute urgence (médicale, police, pompiers)',
   },
   {
-    id: "2",
-    service: "Ambulance (SAMU)",
-    numero: "061",
-    usage: "Urgence médicale nécessitant une intervention rapide"
+    id: '2',
+    service: 'Ambulance (SAMU)',
+    numero: '061',
+    usage: 'Urgence médicale nécessitant une intervention rapide',
   },
   {
-    id: "3",
-    service: "Police Nationale",
-    numero: "091",
-    usage: "Vols, agressions ou délits au sein de la ville"
+    id: '3',
+    service: 'Police Nationale',
+    numero: '091',
+    usage: 'Vols, agressions ou délits au sein de la ville',
   },
   {
-    id: "4",
-    service: "Police Locale",
-    numero: "092",
-    usage: "Accidents de la route urbains et problèmes de circulation"
+    id: '4',
+    service: 'Police Locale',
+    numero: '092',
+    usage: 'Accidents de la route urbains et problèmes de circulation',
   },
   {
-    id: "5",
-    service: "Garde Civile",
-    numero: "062",
-    usage: "Problèmes hors agglomération (grandes routes, parcs naturels)"
+    id: '5',
+    service: 'Garde Civile',
+    numero: '062',
+    usage: 'Problèmes hors agglomération (grandes routes, parcs naturels)',
   },
   {
-    id: "6",
-    service: "Pompiers",
-    numero: "080",
-    usage: "Incendies et sauvetages"
+    id: '6',
+    service: 'Pompiers',
+    numero: '080',
+    usage: 'Incendies et sauvetages',
   },
   {
-    id: "7",
-    service: "Ligne France Consulaire (Séville)",
-    numero: "+34 85 45 08 001",
-    usage: "Lundi au vendredi, de 9h à 17h"
+    id: '7',
+    service: 'Ligne France Consulaire (Séville)',
+    numero: '+34 85 45 08 001',
+    usage: 'Lundi au vendredi, de 9h à 17h',
   },
   {
-    id: "8",
-    service: "Agence locale à Séville",
-    numero: "+34 954 293 200",
-    usage: "Assistance de proximité"
+    id: '8',
+    service: 'Agence locale à Séville',
+    numero: '+34 954 293 200',
+    usage: 'Assistance de proximité',
   },
   {
-    id: "9",
-    service: "Consulat Général à Madrid",
-    numero: "+34 912 15 91 00",
-    usage: "Supervise la région et gère les urgences consulaires graves"
-  }
+    id: '9',
+    service: 'Consulat Général à Madrid',
+    numero: '+34 912 15 91 00',
+    usage: 'Supervise la région et gère les urgences consulaires graves',
+  },
 ]
