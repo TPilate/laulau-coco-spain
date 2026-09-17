@@ -1,5 +1,6 @@
 <template>
   <div class="app-shell">
+    <OfflineBanner />
     <main class="app-contenu">
       <slot />
     </main>
