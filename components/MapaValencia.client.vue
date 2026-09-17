@@ -14,6 +14,14 @@ function enregistrerProtocolePmtiles(): void {
   if (protocoleEnregistre) return
   const protocole = new Protocol()
   maplibregl.addProtocol('pmtiles', protocole.tile)
+
+  // maplibre-gl calcule l'URL de son worker via `import.meta.url` du module lui-même
+  // au lieu du motif `new Worker(new URL(...), import.meta.url)` reconnu par Vite : le
+  // fichier n'est donc jamais copié dans le bundle et 404 par défaut, ce qui empêche
+  // tout décodage de tuile (la carte reste vide, sans erreur visible). On sert notre
+  // propre copie statique (voir scripts/build-map-data.md) et on pointe dessus.
+  maplibregl.setWorkerUrl('/maplibre-gl-worker.mjs')
+
   protocoleEnregistre = true
 }
 </script>
@@ -79,56 +87,69 @@ onMounted(() => {
   assurerCarteEnCache().catch(() => {
     erreurCache.value = true
   })
+})
 
-  if (!conteneurCarte.value) return
+// Nuxt enveloppe les composants .client.vue façon <ClientOnly> : au tout premier rendu
+// (nuxtApp.isHydrating vaut true même avec ssr:false), il affiche un <div> statique de
+// substitution et ne rend le vrai template qu'au tick suivant. Notre propre onMounted se
+// déclenche donc AVANT que <div ref="conteneurCarte"> n'existe réellement dans le DOM :
+// s'appuyer sur onMounted pour créer la carte échoue silencieusement (conteneurCarte.value
+// reste null pour toujours, aucune erreur). On observe plutôt la ref elle-même : elle finit
+// par recevoir le vrai élément dès que Nuxt rend le contenu réel, quel que soit le tick.
+watch(
+  conteneurCarte,
+  (el: typeof conteneurCarte.value) => {
+    if (!el || carte) return
 
-  carte = new maplibregl.Map({
-    container: conteneurCarte.value,
-    style: creerStyleValence(location.origin),
-    center: [-0.3763, 39.4699],
-    zoom: 13,
-  })
-
-  // usePosition() est appelé pendant setup() : une position manuelle restaurée depuis
-  // le stockage existe déjà avant l'enregistrement du watch, qui ne se déclencherait
-  // donc jamais pour elle. On applique l'état initial explicitement.
-  synchroniserMarqueurPosition(position.value)
-
-  carte.on('load', () => {
-    marqueurs.clear()
-    for (const lieu of lieux) {
-      const marqueur = new maplibregl.Marker({ color: '#e2572b' })
-        .setLngLat([lieu.lng, lieu.lat])
-        .setPopup(
-          new maplibregl.Popup({ offset: 24 }).setHTML(
-            `<strong>${lieu.nom}</strong>${lieu.mot ? `<p>${lieu.mot}</p>` : ''}`,
-          ),
-        )
-        .addTo(carte!)
-      marqueurs.set(lieu.id, marqueur)
-    }
-
-    carte!.on('click', (evenementClic) => {
-      if (!modeSelectionManuelle.value) return
-      definirPositionManuelle({ lat: evenementClic.lngLat.lat, lng: evenementClic.lngLat.lng })
-      modeSelectionManuelle.value = false
+    carte = new maplibregl.Map({
+      container: el,
+      style: creerStyleValence(location.origin),
+      center: [-0.3763, 39.4699],
+      zoom: 13,
     })
 
-    const demande = consommerFocus()
-    if (demande) {
-      const lieuVise = lieux.find((lieu) => lieu.id === demande.lieuId)
-      if (lieuVise) {
-        centrerSur(lieuVise.lat, lieuVise.lng)
-        // « Voir sur la carte » doit aussi ouvrir la fiche du lieu, pas seulement centrer.
-        marqueurs.get(demande.lieuId)?.togglePopup()
-      }
-    }
-  })
+    // usePosition() est appelé pendant setup() : une position manuelle restaurée depuis
+    // le stockage existe déjà avant l'enregistrement du watch de position, qui ne se
+    // déclencherait donc jamais pour elle. On applique l'état initial explicitement.
+    synchroniserMarqueurPosition(position.value)
 
-  if (mode.value === 'gps') {
-    activerModeGps()
-  }
-})
+    carte.on('load', () => {
+      marqueurs.clear()
+      for (const lieu of lieux) {
+        const marqueur = new maplibregl.Marker({ color: '#e2572b' })
+          .setLngLat([lieu.lng, lieu.lat])
+          .setPopup(
+            new maplibregl.Popup({ offset: 24 }).setHTML(
+              `<strong>${lieu.nom}</strong>${lieu.mot ? `<p>${lieu.mot}</p>` : ''}`,
+            ),
+          )
+          .addTo(carte!)
+        marqueurs.set(lieu.id, marqueur)
+      }
+
+      carte!.on('click', (evenementClic) => {
+        if (!modeSelectionManuelle.value) return
+        definirPositionManuelle({ lat: evenementClic.lngLat.lat, lng: evenementClic.lngLat.lng })
+        modeSelectionManuelle.value = false
+      })
+
+      const demande = consommerFocus()
+      if (demande) {
+        const lieuVise = lieux.find((lieu) => lieu.id === demande.lieuId)
+        if (lieuVise) {
+          centrerSur(lieuVise.lat, lieuVise.lng)
+          // « Voir sur la carte » doit aussi ouvrir la fiche du lieu, pas seulement centrer.
+          marqueurs.get(demande.lieuId)?.togglePopup()
+        }
+      }
+    })
+
+    if (mode.value === 'gps') {
+      activerModeGps()
+    }
+  },
+  { immediate: true },
+)
 
 onUnmounted(() => {
   // Sans remove(), chaque visite de /carte abandonne un contexte WebGL vivant : les

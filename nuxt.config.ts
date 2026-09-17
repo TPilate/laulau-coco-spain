@@ -26,7 +26,10 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2,pbf}'],
+      // mjs : le worker MapLibre GL et son chunk partagé (public/maplibre-gl-worker.mjs,
+      // public/maplibre-gl-shared.mjs) — nécessaires au décodage des tuiles vectorielles,
+      // sans quoi la carte affiche un fond vide sans aucune erreur visible.
+      globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,json,woff2,pbf}'],
       runtimeCaching: [
         {
           urlPattern: /\/valencia\.pmtiles$/,

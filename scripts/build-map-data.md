@@ -18,13 +18,17 @@
 
 ## `public/style/fonts` et `public/style/sprites`
 
-Polices et sprites Protomaps. **Ne copier que les trois fontstacks réellement
-référencés par le style** (`utils/mapStyle.ts` → `layers('protomaps',
-namedFlavor('light'), { lang: 'fr' })` n'utilise que `Noto Sans Regular`,
-`Noto Sans Medium` et `Noto Sans Italic`). Copier tout l'arbre `fonts/`
-ajoutait ~7,2 Mo de glyphes jamais demandés (Devanagari, etc.) au precache
-Workbox, qui est tout-ou-rien : une seule entrée en échec fait rater
-l'installation du service worker.
+Polices et sprites Protomaps. **Ne copier que les trois fontstacks que l'extrait
+actuel peut effectivement solliciter** (`utils/mapStyle.ts` → `layers('protomaps',
+namedFlavor('light'), { lang: 'fr' })` référence conditionnellement d'autres
+fontstacks selon le script des libellés — ex. `Noto Sans Devanagari Regular v1` pour
+du texte en devanagari — mais `public/valencia.pmtiles` ne contient aucune donnée de ce
+type sur la bbox de Valence, donc seuls `Noto Sans Regular`, `Noto Sans Medium` et
+`Noto Sans Italic` sont jamais réellement demandés). Copier tout l'arbre `fonts/`
+ajoutait ~7,2 Mo de glyphes jamais utilisés par cet extrait au precache Workbox, qui
+est tout-ou-rien : une seule entrée en échec fait rater l'installation du service
+worker. **Si un jour la bbox est étendue à une zone avec un script non-latin**, il
+faudra réévaluer quels fontstacks ajouter.
 
 ```bash
 curl -sSL -o /tmp/basemaps-assets.zip https://github.com/protomaps/basemaps-assets/archive/refs/heads/main.zip
@@ -43,3 +47,24 @@ et seulement celui-là.
 
 Ces assets changent rarement ; à régénérer seulement si Protomaps publie une nouvelle
 version majeure du style (`@protomaps/basemaps` en `package.json`).
+
+## `public/maplibre-gl-worker.mjs` et `public/maplibre-gl-shared.mjs`
+
+MapLibre GL calcule l'URL de son worker via `import.meta.url` du module lui-même,
+un motif que Vite ne reconnaît pas (contrairement à `new Worker(new URL(...),
+import.meta.url)`) : le fichier n'est donc jamais copié dans le bundle et 404 par
+défaut, ce qui empêche tout décodage de tuile vectorielle — la carte reste alors vide,
+sans aucune erreur dans la console. `maplibregl.setWorkerUrl(...)` (appelé dans
+`components/MapaValencia.client.vue`) pointe vers notre propre copie statique.
+
+À régénérer si `maplibre-gl` est mis à jour dans `package.json` :
+
+```bash
+cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs public/maplibre-gl-worker.mjs
+cp node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs public/maplibre-gl-shared.mjs
+```
+
+`maplibre-gl-shared.mjs` est un chunk que `maplibre-gl-worker.mjs` importe par un
+chemin relatif littéral (`./maplibre-gl-shared.mjs`) compilé en dur dans le fichier :
+il doit impérativement garder ce nom exact et rester à la racine de `public/`, au même
+niveau que le worker.
