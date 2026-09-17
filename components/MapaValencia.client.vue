@@ -30,6 +30,22 @@ function choisirLieuCommePosition(lieuId: string): void {
   if (lieu) definirPositionManuelle({ lat: lieu.lat, lng: lieu.lng })
 }
 
+function synchroniserMarqueurPosition(nouvellePosition: typeof position.value): void {
+  if (!carte) return
+  if (!nouvellePosition) {
+    marqueurPosition?.remove()
+    marqueurPosition = null
+    return
+  }
+  if (!marqueurPosition) {
+    marqueurPosition = new maplibregl.Marker({ color: '#1d6f8c' })
+      .setLngLat([nouvellePosition.lng, nouvellePosition.lat])
+      .addTo(carte)
+  } else {
+    marqueurPosition.setLngLat([nouvellePosition.lng, nouvellePosition.lat])
+  }
+}
+
 onMounted(() => {
   const protocol = new Protocol()
   maplibregl.addProtocol('pmtiles', protocol.tile)
@@ -50,6 +66,11 @@ onMounted(() => {
     center: [-0.3763, 39.4699],
     zoom: 13,
   })
+
+  // usePosition() est appelé pendant setup() : une position manuelle restaurée depuis
+  // le stockage existe déjà avant l'enregistrement du watch, qui ne se déclencherait
+  // donc jamais pour elle. On applique l'état initial explicitement.
+  synchroniserMarqueurPosition(position.value)
 
   carte.on('load', () => {
     for (const lieu of lieux) {
@@ -81,21 +102,7 @@ onMounted(() => {
   }
 })
 
-watch(position, (nouvellePosition: typeof position.value) => {
-  if (!carte) return
-  if (!nouvellePosition) {
-    marqueurPosition?.remove()
-    marqueurPosition = null
-    return
-  }
-  if (!marqueurPosition) {
-    marqueurPosition = new maplibregl.Marker({ color: '#1d6f8c' })
-      .setLngLat([nouvellePosition.lng, nouvellePosition.lat])
-      .addTo(carte)
-  } else {
-    marqueurPosition.setLngLat([nouvellePosition.lng, nouvellePosition.lat])
-  }
-})
+watch(position, synchroniserMarqueurPosition)
 </script>
 
 <template>
