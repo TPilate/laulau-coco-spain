@@ -23,7 +23,7 @@ export function usePersistedRef<T>(cle: string, valeurParDefaut: T): Ref<T> {
         localStorage.setItem(cle, JSON.stringify(nouvelleValeur))
       }
     },
-    { deep: true },
+    { deep: true, flush: 'sync' },
   )
 
   return donnee
