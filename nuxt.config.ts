@@ -1,6 +1,6 @@
 export default defineNuxtConfig({
   ssr: false,
-  devtools: { enabled: false },
+  devtools: { enabled: true },
   compatibilityDate: '2026-09-17',
   modules: ['@nuxt/eslint', '@vite-pwa/nuxt'],
   css: ['~/assets/css/app.css'],

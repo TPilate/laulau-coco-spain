@@ -151,3 +151,12 @@ summary {
   color: #8a7b6c;
   padding: 4px 8px;
 }
+
+.service {
+  font-weight: bold;
+}
+
+.numero {
+  text-decoration: none;
+  font-weight: bolder;
+}
