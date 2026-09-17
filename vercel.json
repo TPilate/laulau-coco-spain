@@ -1,0 +1,10 @@
+{
+  "buildCommand": "nuxt generate",
+  "outputDirectory": ".output/public",
+  "headers": [
+    {
+      "source": "/valencia.pmtiles",
+      "headers": [{ "key": "Accept-Ranges", "value": "bytes" }]
+    }
+  ]
+}
