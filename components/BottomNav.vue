@@ -9,6 +9,7 @@ const onglets = [
   { chemin: '/guide', label: 'Guide', icone: '📍' },
   { chemin: '/messages', label: 'Messages', icone: '💌' },
   { chemin: '/phrases', label: 'Phrases', icone: '💬' },
+  { chemin: '/checklist', label: 'Checklist', icone: '✅' },
 ] as const
 </script>
 

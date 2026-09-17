@@ -103,3 +103,51 @@ summary {
   color: #1d6f8c;
   font-weight: 600;
 }
+
+/* Onglet Checklist. */
+.formulaire-checklist {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.formulaire-checklist input[type='text'] {
+  flex: 1;
+  font: inherit;
+  padding: 8px 12px;
+  border: 1px solid #ecdccb;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.item-checklist {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.item-checklist label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.item-checklist input[type='checkbox'] {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.item-checklist .coche {
+  color: #8a7b6c;
+  text-decoration: line-through;
+}
+
+.item-checklist .supprimer {
+  flex-shrink: 0;
+  background: transparent;
+  color: #8a7b6c;
+  padding: 4px 8px;
+}
