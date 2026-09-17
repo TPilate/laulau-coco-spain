@@ -19,6 +19,7 @@ function enregistrerProtocolePmtiles(): void {
 const conteneurCarte = ref<HTMLDivElement | null>(null)
 let carte: maplibregl.Map | null = null
 let marqueurPosition: maplibregl.Marker | null = null
+const marqueurs = new Map<string, maplibregl.Marker>()
 
 const { mode, position, rechercheGpsEnCours, activerModeGps, definirPositionManuelle } = usePosition()
 const { pret: cartePrete, telechargementEnCours, assurerCarteEnCache } = useMapCache()
@@ -84,8 +85,9 @@ onMounted(() => {
   synchroniserMarqueurPosition(position.value)
 
   carte.on('load', () => {
+    marqueurs.clear()
     for (const lieu of lieux) {
-      new maplibregl.Marker({ color: '#e2572b' })
+      const marqueur = new maplibregl.Marker({ color: '#e2572b' })
         .setLngLat([lieu.lng, lieu.lat])
         .setPopup(
           new maplibregl.Popup({ offset: 24 }).setHTML(
@@ -93,6 +95,7 @@ onMounted(() => {
           ),
         )
         .addTo(carte!)
+      marqueurs.set(lieu.id, marqueur)
     }
 
     carte!.on('click', (evenementClic) => {
@@ -104,7 +107,11 @@ onMounted(() => {
     const demande = consommerFocus()
     if (demande) {
       const lieuVise = lieux.find((lieu) => lieu.id === demande.lieuId)
-      if (lieuVise) centrerSur(lieuVise.lat, lieuVise.lng)
+      if (lieuVise) {
+        centrerSur(lieuVise.lat, lieuVise.lng)
+        // « Voir sur la carte » doit aussi ouvrir la fiche du lieu, pas seulement centrer.
+        marqueurs.get(demande.lieuId)?.togglePopup()
+      }
     }
   })
 
@@ -118,6 +125,7 @@ onUnmounted(() => {
   // navigateurs en plafonnent le nombre (~16) et la carte finit par ne plus s'afficher.
   marqueurPosition?.remove()
   marqueurPosition = null
+  marqueurs.clear()
   carte?.remove()
   carte = null
 })
