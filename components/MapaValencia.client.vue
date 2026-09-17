@@ -4,6 +4,18 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { Protocol } from 'pmtiles'
 import { lieux } from '~/data/content'
 
+// Portée module : le protocole pmtiles ne doit être enregistré qu'une seule fois.
+// Le réenregistrer à chaque montage jetait le cache mémoire de répertoires de tuiles
+// de l'instance précédente.
+let protocoleEnregistre = false
+
+function enregistrerProtocolePmtiles(): void {
+  if (protocoleEnregistre) return
+  const protocole = new Protocol()
+  maplibregl.addProtocol('pmtiles', protocole.tile)
+  protocoleEnregistre = true
+}
+
 const conteneurCarte = ref<HTMLDivElement | null>(null)
 let carte: maplibregl.Map | null = null
 let marqueurPosition: maplibregl.Marker | null = null
@@ -47,8 +59,7 @@ function synchroniserMarqueurPosition(nouvellePosition: typeof position.value): 
 }
 
 onMounted(() => {
-  const protocol = new Protocol()
-  maplibregl.addProtocol('pmtiles', protocol.tile)
+  enregistrerProtocolePmtiles()
 
   // Le téléchargement du cache tuiles ne doit jamais bloquer la création de la carte :
   // en cas d'échec (hors ligne au premier lancement), on affiche un avertissement mais
@@ -100,6 +111,15 @@ onMounted(() => {
   if (mode.value === 'gps') {
     activerModeGps()
   }
+})
+
+onUnmounted(() => {
+  // Sans remove(), chaque visite de /carte abandonne un contexte WebGL vivant : les
+  // navigateurs en plafonnent le nombre (~16) et la carte finit par ne plus s'afficher.
+  marqueurPosition?.remove()
+  marqueurPosition = null
+  carte?.remove()
+  carte = null
 })
 
 watch(position, synchroniserMarqueurPosition)
