@@ -16,6 +16,9 @@ export default defineNuxtConfig({
       name: 'Laulau & Coco',
       short_name: 'L&C',
       description: 'Guide de voyage hors ligne pour notre séjour à Séville.',
+      id: '/carte/',
+      start_url: '/carte/',
+      scope: '/',
       display: 'standalone',
       theme_color: '#E2572B',
       background_color: '#FFF8F0',
@@ -26,6 +29,7 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
+      navigateFallback: '/',
       // mjs : le worker MapLibre GL et son chunk partagé (public/maplibre-gl-worker.mjs,
       // public/maplibre-gl-shared.mjs) — nécessaires au décodage des tuiles vectorielles,
       // sans quoi la carte affiche un fond vide sans aucune erreur visible.

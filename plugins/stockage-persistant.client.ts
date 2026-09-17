@@ -1,3 +1,3 @@
 export default defineNuxtPlugin(() => {
-  demanderStockagePersistant()
+  void demanderStockagePersistant().catch(() => undefined)
 })
