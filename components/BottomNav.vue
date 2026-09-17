@@ -7,7 +7,6 @@ const onglets = [
   { chemin: '/carte', label: 'Carte', icone: '🗺️' },
   { chemin: '/a-venir', label: 'À venir', icone: '🕒' },
   { chemin: '/guide', label: 'Guide', icone: '📍' },
-  { chemin: '/messages', label: 'Messages', icone: '💌' },
   { chemin: '/phrases', label: 'Phrases', icone: '💬' },
   { chemin: '/checklist', label: 'Checklist', icone: '✅' },
   { chemin: '/urgence', label: 'Urgence', icone: '🚨'}
