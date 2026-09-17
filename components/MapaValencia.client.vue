@@ -13,6 +13,7 @@ const { pret: cartePrete, telechargementEnCours, assurerCarteEnCache } = useMapC
 const { consommerFocus } = useMapFocus()
 
 const modeSelectionManuelle = ref(false)
+const erreurCache = ref(false)
 
 function centrerSur(lat: number, lng: number, zoom = 15): void {
   carte?.flyTo({ center: [lng, lat], zoom })
@@ -29,11 +30,17 @@ function choisirLieuCommePosition(lieuId: string): void {
   if (lieu) definirPositionManuelle({ lat: lieu.lat, lng: lieu.lng })
 }
 
-onMounted(async () => {
+onMounted(() => {
   const protocol = new Protocol()
   maplibregl.addProtocol('pmtiles', protocol.tile)
 
-  await assurerCarteEnCache()
+  // Le téléchargement du cache tuiles ne doit jamais bloquer la création de la carte :
+  // en cas d'échec (hors ligne au premier lancement), on affiche un avertissement mais
+  // la carte reste créée avec ce que le service worker a déjà en cache.
+  erreurCache.value = false
+  assurerCarteEnCache().catch(() => {
+    erreurCache.value = true
+  })
 
   if (!conteneurCarte.value) return
 
@@ -100,9 +107,11 @@ watch(position, (nouvellePosition: typeof position.value) => {
         {{
           cartePrete
             ? 'Carte prête ✓'
-            : telechargementEnCours
-              ? 'Téléchargement de la carte…'
-              : 'Préparation de la carte…'
+            : erreurCache
+              ? 'Carte indisponible hors ligne — reconnecte-toi une fois'
+              : telechargementEnCours
+                ? 'Téléchargement de la carte…'
+                : 'Préparation de la carte…'
         }}
       </p>
 
