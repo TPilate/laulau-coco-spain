@@ -12,7 +12,10 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "nuxt": "^3.21.11"
+    "@protomaps/basemaps": "^5.7.2",
+    "maplibre-gl": "^6.10.0",
+    "nuxt": "^3.21.11",
+    "pmtiles": "^4.5.0"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",
