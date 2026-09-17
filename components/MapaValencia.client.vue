@@ -1,12 +1,13 @@
-<script setup lang="ts">
+<script lang="ts">
+// Bloc <script> classique : son contenu vit en portée module (le corps de
+// <script setup> est, lui, réexécuté à chaque instance). Le protocole pmtiles ne doit
+// être enregistré qu'une fois : le réenregistrer à chaque montage jetait le cache
+// mémoire de répertoires de tuiles de l'instance précédente.
 import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { Protocol } from 'pmtiles'
 import { lieux } from '~/data/content'
 
-// Portée module : le protocole pmtiles ne doit être enregistré qu'une seule fois.
-// Le réenregistrer à chaque montage jetait le cache mémoire de répertoires de tuiles
-// de l'instance précédente.
 let protocoleEnregistre = false
 
 function enregistrerProtocolePmtiles(): void {
@@ -15,7 +16,9 @@ function enregistrerProtocolePmtiles(): void {
   maplibregl.addProtocol('pmtiles', protocole.tile)
   protocoleEnregistre = true
 }
+</script>
 
+<script setup lang="ts">
 const conteneurCarte = ref<HTMLDivElement | null>(null)
 let carte: maplibregl.Map | null = null
 let marqueurPosition: maplibregl.Marker | null = null
