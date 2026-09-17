@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   compatibilityDate: '2026-09-17',
   modules: ['@nuxt/eslint', '@vite-pwa/nuxt'],
+  css: ['~/assets/css/app.css'],
   app: {
     head: {
       link: [{ rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/apple-touch-icon.png' }],
