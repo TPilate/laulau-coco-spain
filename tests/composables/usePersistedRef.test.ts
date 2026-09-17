@@ -26,8 +26,8 @@ describe('usePersistedRef', () => {
   })
 
   it('persiste les objets', async () => {
-    const valeur = usePersistedRef('test:objet', { mode: 'gps' as const })
-    valeur.value = { mode: 'manuel' as const }
+    const valeur = usePersistedRef<{ mode: 'gps' | 'manuel' }>('test:objet', { mode: 'gps' })
+    valeur.value = { mode: 'manuel' }
     await nextTick()
     expect(JSON.parse(localStorage.getItem('test:objet')!)).toEqual({ mode: 'manuel' })
   })
