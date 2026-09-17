@@ -27,7 +27,7 @@ describe('useMapCache', () => {
     const { pret, assurerCarteEnCache } = useMapCache()
     await assurerCarteEnCache()
 
-    expect(add).toHaveBeenCalledWith('/valencia.pmtiles')
+    expect(add).toHaveBeenCalledWith('/seville.pmtiles')
     expect(pret.value).toBe(true)
   })
 })

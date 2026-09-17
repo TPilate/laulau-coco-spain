@@ -1,3 +1,3 @@
 <template>
-  <MapaValencia />
+  <MapaSeville />
 </template>

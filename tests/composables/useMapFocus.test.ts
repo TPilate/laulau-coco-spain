@@ -16,7 +16,7 @@ describe('useMapFocus', () => {
   })
 
   it(`la demande est effacée après consommation`, () => {
-    useMapFocus().demanderFocus('lieu-malvarrosa')
+    useMapFocus().demanderFocus('lieu-parque-maria-luisa')
     useMapFocus().consommerFocus()
     expect(useMapFocus().consommerFocus()).toBeNull()
   })

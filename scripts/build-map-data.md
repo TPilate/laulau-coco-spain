@@ -1,20 +1,19 @@
 # Régénérer les données de carte hors ligne
 
-## `public/valencia.pmtiles`
+## `public/seville.pmtiles`
 
 1. Installer la CLI `pmtiles` : `brew install pmtiles`.
 2. Relever l'URL du build Protomaps le plus récent sur
    https://maps.protomaps.com/builds (page JS, pas d'API brute — l'ouvrir dans un
    navigateur).
-3. Extraire la bbox de Valence (centre historique, Ciutat de les Arts i les Ciències,
-   plage de la Malvarrosa) :
+3. Extraire la bbox de Séville (centre historique, Triana et le parc de María Luisa) :
 
    ```bash
-   pmtiles extract <URL_DU_BUILD> public/valencia.pmtiles \
-     --bbox=-0.42,39.43,-0.32,39.51 --maxzoom=15
+   pmtiles extract <URL_DU_BUILD> public/seville.pmtiles \
+    --bbox=-6.05,37.30,-5.85,37.45 --maxzoom=15
    ```
 
-4. Vérifier : `pmtiles verify public/valencia.pmtiles`.
+4. Vérifier : `pmtiles verify public/seville.pmtiles`.
 
 ## `public/style/fonts` et `public/style/sprites`
 
@@ -22,8 +21,8 @@ Polices et sprites Protomaps. **Ne copier que les trois fontstacks que l'extrait
 actuel peut effectivement solliciter** (`utils/mapStyle.ts` → `layers('protomaps',
 namedFlavor('light'), { lang: 'fr' })` référence conditionnellement d'autres
 fontstacks selon le script des libellés — ex. `Noto Sans Devanagari Regular v1` pour
-du texte en devanagari — mais `public/valencia.pmtiles` ne contient aucune donnée de ce
-type sur la bbox de Valence, donc seuls `Noto Sans Regular`, `Noto Sans Medium` et
+du texte en devanagari — mais `public/seville.pmtiles` ne contient aucune donnée de ce
+type sur la bbox de Séville, donc seuls `Noto Sans Regular`, `Noto Sans Medium` et
 `Noto Sans Italic` sont jamais réellement demandés). Copier tout l'arbre `fonts/`
 ajoutait ~7,2 Mo de glyphes jamais utilisés par cet extrait au precache Workbox, qui
 est tout-ou-rien : une seule entrée en échec fait rater l'installation du service
@@ -55,7 +54,7 @@ un motif que Vite ne reconnaît pas (contrairement à `new Worker(new URL(...),
 import.meta.url)`) : le fichier n'est donc jamais copié dans le bundle et 404 par
 défaut, ce qui empêche tout décodage de tuile vectorielle — la carte reste alors vide,
 sans aucune erreur dans la console. `maplibregl.setWorkerUrl(...)` (appelé dans
-`components/MapaValencia.client.vue`) pointe vers notre propre copie statique.
+`components/MapaSeville.client.vue`) pointe vers notre propre copie statique.
 
 À régénérer si `maplibre-gl` est mis à jour dans `package.json` :
 

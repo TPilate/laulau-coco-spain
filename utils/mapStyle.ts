@@ -1,7 +1,7 @@
 import { layers, namedFlavor } from '@protomaps/basemaps'
 import type { StyleSpecification } from 'maplibre-gl'
 
-export function creerStyleValence(origin: string): StyleSpecification {
+export function creerStyleSeville(origin: string): StyleSpecification {
   return {
     version: 8,
     glyphs: `${origin}/style/fonts/{fontstack}/{range}.pbf`,
@@ -9,7 +9,7 @@ export function creerStyleValence(origin: string): StyleSpecification {
     sources: {
       protomaps: {
         type: 'vector',
-        url: `pmtiles://${origin}/valencia.pmtiles`,
+        url: `pmtiles://${origin}/seville.pmtiles`,
         attribution:
           '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
       },

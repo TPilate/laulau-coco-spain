@@ -15,7 +15,7 @@ export default defineNuxtConfig({
     manifest: {
       name: 'Laulau & Coco',
       short_name: 'L&C',
-      description: 'Guide de voyage hors ligne pour notre séjour à Valence.',
+      description: 'Guide de voyage hors ligne pour notre séjour à Séville.',
       display: 'standalone',
       theme_color: '#E2572B',
       background_color: '#FFF8F0',
@@ -32,7 +32,7 @@ export default defineNuxtConfig({
       globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,json,woff2,pbf}'],
       runtimeCaching: [
         {
-          urlPattern: /\/valencia\.pmtiles$/,
+          urlPattern: /\/seville\.pmtiles$/,
           handler: 'CacheFirst',
           options: {
             cacheName: 'map',

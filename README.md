@@ -1,6 +1,6 @@
-# Laulau & Coco — guide de voyage à Valence
+# Laulau & Coco — guide de voyage à Séville
 
-App PWA hors ligne pour notre séjour à Valence. Tout le contenu (lieux, événements,
+App PWA hors ligne pour notre séjour à Séville. Tout le contenu (lieux, événements,
 messages, phrases) vit dans `data/content.ts`.
 
 ## Développement
@@ -32,8 +32,8 @@ Produit un site statique dans `.output/public`. Pour déployer sur Vercel :
 
 1. Installer la CLI Vercel : `npm install -g vercel`.
 2. Depuis la racine du projet : `vercel login`, puis `vercel --prod`.
-3. Une fois déployé, vérifier que `valencia.pmtiles` supporte les requêtes par plage :
-   `curl -I -H "Range: bytes=0-1023" https://<votre-domaine>/valencia.pmtiles`
+3. Une fois déployé, vérifier que `seville.pmtiles` supporte les requêtes par plage :
+   `curl -I -H "Range: bytes=0-1023" https://<votre-domaine>/seville.pmtiles`
    doit répondre `206 Partial Content` avec un en-tête `Content-Range`.
 
 ## Checklist avant le départ

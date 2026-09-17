@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 
 const NOM_CACHE = 'map'
-const CHEMIN_PMTILES = '/valencia.pmtiles'
+const CHEMIN_PMTILES = '/seville.pmtiles'
 
 export function useMapCache() {
   const pret = ref(false)

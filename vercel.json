@@ -3,7 +3,7 @@
   "outputDirectory": ".output/public",
   "headers": [
     {
-      "source": "/valencia.pmtiles",
+      "source": "/seville.pmtiles",
       "headers": [{ "key": "Accept-Ranges", "value": "bytes" }]
     }
   ]
