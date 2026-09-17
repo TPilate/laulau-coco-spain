@@ -9,7 +9,8 @@
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@protomaps/basemaps": "^5.7.2",
@@ -21,6 +22,7 @@
     "@nuxt/eslint": "^1.17.0",
     "eslint": "^10.10.0",
     "happy-dom": "^20.14.5",
+    "sharp": "^0.35.4",
     "typescript": "^5.9.3",
     "vitest": "^5.0.1",
     "vue-tsc": "^3.3.11"
