@@ -1,6 +1,7 @@
+<script setup lang="ts">
+await navigateTo('/carte')
+</script>
+
 <template>
-  <div>
-    <h1>Laulau &amp; Coco</h1>
-    <p>App en construction.</p>
-  </div>
+  <div />
 </template>
