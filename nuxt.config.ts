@@ -6,9 +6,17 @@ export default defineNuxtConfig({
   css: ['~/assets/css/app.css'],
   app: {
     head: {
-      link: [{ rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/apple-touch-icon.png' }],
+      link: [
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/apple-touch-icon.png' },
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap',
+        },
+      ],
       meta: [
-        { name: 'theme-color', content: '#E2572B' },
+        { name: 'theme-color', content: '#F2ECE7' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-title', content: 'Laulau & Coco' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
@@ -25,8 +33,8 @@ export default defineNuxtConfig({
       start_url: '/carte/',
       scope: '/',
       display: 'standalone',
-      theme_color: '#E2572B',
-      background_color: '#FFF8F0',
+      theme_color: '#F2ECE7',
+      background_color: '#F2ECE7',
       icons: [
         { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
         { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },

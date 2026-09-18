@@ -1,4 +1,25 @@
-/* Feuille de style globale — palette : #E2572B orange, #1D6F8C azulejos, #FFF8F0 crème. */
+/* Feuille de style globale — liquid glass pastel : lilas #E6D3EC, bleu #C9D8F0, vert #CFE3D8, pêche #FAD7C4. */
+
+:root {
+  --ink: #3a2b26;
+  --ink-soft: #4a3a34;
+  --text: #5c4a43;
+  --text-mono: #6e5c54;
+  --accent: #8e3514;
+  --accent-hover: #6e250c;
+  --lilac: #e6d3ec;
+  --lilac-deep: #5b2e6b;
+  --blue: #c9d8f0;
+  --green: #cfe3d8;
+  --peach: #fad7c4;
+  --bg: #f2ece7;
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-strong: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --font-sans: 'Instrument Sans', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
 
 *,
 *::before,
@@ -13,34 +34,104 @@ body {
 }
 
 body {
-  background: #fff8f0;
-  color: #3a3028;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: radial-gradient(120% 60% at 12% 0%, #f0e4f3 0%, rgba(240, 228, 243, 0) 60%),
+    radial-gradient(100% 50% at 92% 8%, #dce8f6 0%, rgba(220, 232, 246, 0) 62%),
+    radial-gradient(120% 60% at 50% 100%, #eaefe7 0%, rgba(234, 239, 231, 0) 64%), var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Contenu des onglets : 72px de barre de navigation + un peu d'air. */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(20px, -24px, 0) scale(1.09);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes sheen {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(230%);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* Contenu des onglets : la barre de navigation flottante + un peu d'air. */
 .page {
-  padding: 16px 16px 88px;
-  max-width: 640px;
+  position: relative;
+  padding: 22px 20px 140px;
+  max-width: 480px;
   margin: 0 auto;
+  animation: rise 0.42s cubic-bezier(0.22, 1, 0.3, 1) both;
+}
+
+.page-eyebrow {
+  margin: 0;
+  font: 500 11px/1 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-mono);
 }
 
 .page h1 {
-  margin: 0 0 16px;
-  font-size: 1.6rem;
-  color: #e2572b;
+  margin: 7px 0 18px;
+  font: 400 32px/1.05 var(--font-serif);
+  color: var(--ink);
 }
 
 .page h2 {
-  margin: 24px 0 8px;
-  font-size: 1.1rem;
-  color: #1d6f8c;
+  margin: 0 0 11px;
+  font: 500 11px/1 var(--font-mono);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  color: var(--text-mono);
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 
 .page ul {
@@ -49,114 +140,127 @@ body {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 11px;
 }
 
-.page li {
+.page section + section {
+  margin-top: 24px;
+}
+
+/* Cartes de verre réutilisables. */
+.verre {
+  background: var(--glass);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 28px -12px rgba(90, 58, 44, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  border-radius: 26px;
+}
+
+.verre-forte {
+  background: var(--glass-strong);
+  backdrop-filter: blur(26px) saturate(190%);
+  -webkit-backdrop-filter: blur(26px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  box-shadow: 0 16px 40px -14px rgba(90, 58, 44, 0.3), inset 0 1px 0 rgba(255, 255, 255, 1);
+  border-radius: 28px;
+}
+
+.puce {
+  flex: none;
+  padding: 11px 16px;
+  border-radius: 18px;
+  font: 600 12.5px/1 var(--font-sans);
+  cursor: pointer;
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 14px rgba(90, 58, 44, 0.1);
+  background: rgba(255, 255, 255, 0.52);
+  color: var(--text);
+  transition: background 0.2s ease;
+}
+
+.puce.actif {
+  background: rgba(58, 43, 38, 0.88);
+  color: #fdf6f1;
+}
+
+.puces-scroll {
+  display: flex;
+  gap: 8px;
+  margin: 0 -20px 18px;
+  padding: 0 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.puces-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.bouton-plein {
+  display: inline-block;
+  padding: 13px 18px;
+  border-radius: 18px;
+  background: rgba(58, 43, 38, 0.88);
+  color: #fdf6f1;
+  font: 600 13px/1 var(--font-sans);
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.bouton-plein:hover {
+  background: var(--ink);
+  color: #fdf6f1;
+}
+
+.bouton-verre {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  font: 600 12px/1 var(--font-sans);
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.bouton-verre:hover {
   background: #fff;
-  border: 1px solid #ecdccb;
-  border-radius: 12px;
-  padding: 12px 14px;
+  color: var(--ink);
 }
 
-.page li strong {
-  display: block;
-  font-size: 1.02rem;
-}
-
-.page p {
-  margin: 4px 0 0;
-}
-
-.page li > button {
-  margin-top: 10px;
-}
-
-/* Les boutons internes de MapLibre (zoom, fermeture de popup) gardent leur propre style. */
-button:not([class*='maplibregl']) {
+/* Boutons génériques restants (popups MapLibre créés sans classe). Tout bouton
+   qui porte sa propre classe (.puce, .bouton-verre, etc.) est ignoré par ce
+   sélecteur — pas besoin d'entretenir une liste d'exclusions à chaque ajout. */
+button:not([class]) {
   font: inherit;
   padding: 8px 14px;
   border: none;
   border-radius: 999px;
-  background: #e2572b;
-  color: #fff8f0;
+  background: rgba(58, 43, 38, 0.88);
+  color: #fdf6f1;
   cursor: pointer;
 }
 
 button:not([class*='maplibregl']):active {
-  filter: brightness(0.92);
+  filter: brightness(0.94);
 }
 
 summary {
   cursor: pointer;
 }
 
-/* Nuances de texte secondaire utilisées par les onglets Phrases / À venir / Messages. */
 .statut,
 .prononciation,
 .lu {
-  color: #8a7b6c;
+  color: var(--text);
   font-size: 0.88rem;
-}
-
-.es {
-  color: #1d6f8c;
-  font-weight: 600;
-}
-
-/* Onglet Checklist. */
-.formulaire-checklist {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.formulaire-checklist input[type='text'] {
-  flex: 1;
-  font: inherit;
-  padding: 8px 12px;
-  border: 1px solid #ecdccb;
-  border-radius: 999px;
-  background: #fff;
-}
-
-.item-checklist {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.item-checklist label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.item-checklist input[type='checkbox'] {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-}
-
-.item-checklist .coche {
-  color: #8a7b6c;
-  text-decoration: line-through;
-}
-
-.item-checklist .supprimer {
-  flex-shrink: 0;
-  background: transparent;
-  color: #8a7b6c;
-  padding: 4px 8px;
-}
-
-.service {
-  font-weight: bold;
-}
-
-.numero {
-  text-decoration: none;
-  font-weight: bolder;
 }
