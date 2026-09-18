@@ -8,6 +8,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { Protocol } from 'pmtiles'
 import { lieux } from '~/data/content'
 import type { TypePointPersonnalise, PointPersonnalise } from '~/composables/usePointsPersonnalises'
+import type { DemandeFocus } from '~/composables/useMapFocus'
 
 let protocoleEnregistre = false
 
@@ -28,6 +29,8 @@ function enregistrerProtocolePmtiles(): void {
 </script>
 
 <script setup lang="ts">
+const emit = defineEmits<{ selection: [lieuId: string] }>()
+
 const conteneurCarte = ref<HTMLDivElement | null>(null)
 let carte: maplibregl.Map | null = null
 let marqueurPosition: maplibregl.Marker | null = null
@@ -43,7 +46,7 @@ const {
   definirPositionManuelle,
 } = usePosition()
 const { pret: cartePrete, telechargementEnCours, assurerCarteEnCache } = useMapCache()
-const { consommerFocus } = useMapFocus()
+const { demandeFocus, consommerFocus } = useMapFocus()
 const {
   points: pointsPersonnalises,
   ajouterPoint,
@@ -51,6 +54,7 @@ const {
   supprimerPoint,
 } = usePointsPersonnalises()
 
+const optionsOuvertes = ref(false)
 const modeSelectionManuelle = ref(false)
 const modeAjoutPoint = ref(false)
 const coordonneesNouveauPoint = ref<{ lat: number; lng: number } | null>(null)
@@ -58,6 +62,10 @@ const typeNouveauPoint = ref<TypePointPersonnalise>('maison')
 const labelNouveauPoint = ref('')
 const pointEnEditionId = ref<string | null>(null)
 const erreurCache = ref(false)
+
+function basculerOptions(): void {
+  optionsOuvertes.value = !optionsOuvertes.value
+}
 
 function centrerSur(lat: number, lng: number, zoom = 15): void {
   carte?.flyTo({ center: [lng, lat], zoom })
@@ -224,14 +232,10 @@ watch(
     carte.on('load', () => {
       marqueurs.clear()
       for (const lieu of lieux) {
-        const marqueur = new maplibregl.Marker({ color: '#e2572b' })
+        const marqueur = new maplibregl.Marker({ color: '#8E3514' })
           .setLngLat([lieu.lng, lieu.lat])
-          .setPopup(
-            new maplibregl.Popup({ offset: 24 }).setHTML(
-              `<strong>${lieu.nom}</strong>${lieu.mot ? `<p>${lieu.mot}</p>` : ''}`,
-            ),
-          )
           .addTo(carte!)
+        marqueur.getElement().addEventListener('click', () => emit('selection', lieu.id))
         marqueurs.set(lieu.id, marqueur)
       }
 
@@ -256,7 +260,7 @@ watch(
         if (lieuVise) {
           centrerSur(lieuVise.lat, lieuVise.lng)
           // « Voir sur la carte » doit aussi ouvrir la fiche du lieu, pas seulement centrer.
-          marqueurs.get(demande.lieuId)?.togglePopup()
+          emit('selection', demande.lieuId)
         }
       }
     })
@@ -281,40 +285,64 @@ onUnmounted(() => {
 
 watch(position, synchroniserMarqueurPosition)
 watch(pointsPersonnalises, synchroniserPointsPersonnalises, { deep: true })
+
+// Sélection d'un lieu depuis la page (liste, recherche) alors que la carte est déjà montée :
+// le déclenchement au chargement (ci-dessus) ne couvre que l'arrivée depuis une autre page.
+watch(demandeFocus, (demande: DemandeFocus | null) => {
+  if (!demande || !carte) return
+  const lieuVise = lieux.find((lieu) => lieu.id === demande.lieuId)
+  if (lieuVise) {
+    centrerSur(lieuVise.lat, lieuVise.lng)
+    emit('selection', demande.lieuId)
+  }
+  consommerFocus()
+})
 </script>
 
 <template>
   <div class="carte-conteneur">
     <div ref="conteneurCarte" class="carte-maplibre" />
 
-    <div class="carte-ui">
-      <p class="statut-cache">
-        {{
-          cartePrete
-            ? 'Carte prête ✓'
-            : erreurCache
-              ? 'Carte indisponible hors ligne — reconnecte-toi une fois'
-              : telechargementEnCours
-                ? 'Téléchargement de la carte…'
-                : 'Préparation de la carte…'
-        }}
-      </p>
+    <p class="statut-cache">
+      {{
+        cartePrete
+          ? 'Carte prête ✓'
+          : erreurCache
+            ? 'Hors ligne — reconnecte-toi une fois'
+            : telechargementEnCours
+              ? 'Téléchargement…'
+              : 'Préparation…'
+      }}
+    </p>
 
-      <div class="controles-position">
-        <span>
+    <button
+      type="button"
+      class="bouton-options"
+      :class="{ actif: optionsOuvertes }"
+      aria-label="Options de position et points personnalisés"
+      @click="basculerOptions"
+    >
+      ⚙
+    </button>
+
+    <div v-if="optionsOuvertes" class="panneau-options">
+      <div class="bloc-options">
+        <span class="bloc-options-titre">
           Position : {{ mode === 'gps' ? 'GPS' : 'Manuelle' }}
           <template v-if="mode === 'gps' && rechercheGpsEnCours"> (recherche…)</template>
         </span>
         <p v-if="erreurGps" class="erreur-gps">GPS refusé — utilise « Je suis à… »</p>
-        <button type="button" @click="activerModeGps">Activer le GPS</button>
-        <button type="button" @click="basculerModeSelectionManuelle">
-          {{ modeSelectionManuelle ? 'Toucher la carte pour placer…' : 'Placer manuellement' }}
-        </button>
-        <button type="button" @click="recentrer">Recentrer</button>
+        <div class="bloc-options-actions">
+          <button type="button" class="puce" @click="activerModeGps">Activer le GPS</button>
+          <button type="button" class="puce" @click="basculerModeSelectionManuelle">
+            {{ modeSelectionManuelle ? 'Toucher la carte pour placer…' : 'Placer manuellement' }}
+          </button>
+          <button type="button" class="puce" @click="recentrer">Recentrer</button>
+        </div>
       </div>
 
-      <div class="controles-points">
-        <button type="button" @click="basculerModeAjoutPoint">
+      <div class="bloc-options">
+        <button type="button" class="puce" @click="basculerModeAjoutPoint">
           {{ modeAjoutPoint ? 'Toucher la carte pour ajouter…' : 'Ajouter un point' }}
         </button>
 
@@ -332,8 +360,8 @@ watch(pointsPersonnalises, synchroniserPointsPersonnalises, { deep: true })
             <input v-model="labelNouveauPoint" type="text" placeholder="Ex. Notre maison">
           </label>
           <div class="formulaire-actions">
-            <button type="button" @click="validerAjoutPoint">{{ pointEnEditionId ? 'Enregistrer' : 'Ajouter' }}</button>
-            <button type="button" @click="annulerAjoutPoint">Annuler</button>
+            <button type="button" class="puce" @click="validerAjoutPoint">{{ pointEnEditionId ? 'Enregistrer' : 'Ajouter' }}</button>
+            <button type="button" class="puce" @click="annulerAjoutPoint">Annuler</button>
           </div>
         </div>
       </div>
@@ -342,7 +370,7 @@ watch(pointsPersonnalises, synchroniserPointsPersonnalises, { deep: true })
         <summary>Je suis à…</summary>
         <ul>
           <li v-for="lieu in lieux" :key="lieu.id">
-            <button type="button" @click="choisirLieuCommePosition(lieu.id)">{{ lieu.nom }}</button>
+            <button type="button" class="puce" @click="choisirLieuCommePosition(lieu.id)">{{ lieu.nom }}</button>
           </li>
         </ul>
       </details>
@@ -352,8 +380,8 @@ watch(pointsPersonnalises, synchroniserPointsPersonnalises, { deep: true })
 
 <style scoped>
 .carte-conteneur {
-  position: relative;
-  height: calc(100vh - 72px);
+  position: absolute;
+  inset: 0;
 }
 
 .carte-maplibre {
@@ -361,19 +389,79 @@ watch(pointsPersonnalises, synchroniserPointsPersonnalises, { deep: true })
   inset: 0;
 }
 
-.carte-ui {
+.statut-cache {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
+  left: 14px;
+  bottom: 12px;
+  z-index: 3;
+  margin: 0;
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 7px 10px;
+  border-radius: 11px;
+}
+
+.bouton-options {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  z-index: 3;
+  width: 30px;
+  height: 30px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.72);
+  border: none;
+  color: var(--ink);
+  font-size: 14px;
+  padding: 0;
+}
+
+.bouton-options.actif {
+  background: rgba(58, 43, 38, 0.88);
+  color: #fdf6f1;
+}
+
+.panneau-options {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 50px;
+  z-index: 4;
+  max-height: calc(100% - 60px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 20px;
+  background: rgba(255, 248, 240, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 10px 30px -10px rgba(90, 58, 44, 0.3);
+  font-size: 0.85rem;
+}
+
+.bloc-options {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  pointer-events: none;
 }
 
-.carte-ui > * {
-  pointer-events: auto;
+.bloc-options-titre {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.bloc-options-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .erreur-gps {
@@ -382,14 +470,13 @@ watch(pointsPersonnalises, synchroniserPointsPersonnalises, { deep: true })
   font-weight: 600;
 }
 
-.statut-cache,
-.controles-position,
-.controles-points,
-.je-suis-a {
-  background: rgba(255, 248, 240, 0.95);
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 0.85rem;
+.je-suis-a ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
 }
 
 .formulaire-point {
