@@ -15,13 +15,8 @@ const onglets = [
 <template>
   <div class="barre-conteneur">
     <nav class="barre-onglets">
-      <NuxtLink
-        v-for="onglet in onglets"
-        :key="onglet.chemin"
-        :to="onglet.chemin"
-        class="onglet"
-        :class="{ actif: estOngletActif(route.path, onglet.chemin) }"
-      >
+      <NuxtLink v-for="onglet in onglets" :key="onglet.chemin" :to="onglet.chemin" class="onglet"
+        :class="{ actif: estOngletActif(route.path, onglet.chemin) }">
         {{ onglet.label }}
       </NuxtLink>
     </nav>
@@ -46,7 +41,7 @@ const onglets = [
   justify-content: space-around;
   max-width: 480px;
   margin: 0 auto;
-  padding: 14px 10px;
+  padding: 22px 10px;
 }
 
 .onglet {
