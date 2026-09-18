@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { lieux } from '~/data/content'
 import type { Categorie } from '~/data/content'
+import { CATEGORIES } from '~/data/categories'
 
 const { demanderFocus } = useMapFocus()
 const { pret: cartePrete, telechargementEnCours, assurerCarteEnCache } = useMapCache()
@@ -14,26 +15,6 @@ onMounted(() => {
 
 const groupes = groupLieuxParCategorie(lieux)
 
-const libellesCategories: Record<Categorie, string> = {
-  'a-voir': 'À voir',
-  resto: 'Restos',
-  cafe: 'Cafés',
-  plage: 'Plages',
-  autre: 'Autres',
-  barrio: 'Quartiers',
-  aeroport: 'Aéroport',
-}
-
-const teintesCategories: Record<Categorie, string> = {
-  'a-voir': '#E6D3EC',
-  barrio: '#C9D8F0',
-  resto: '#FAD7C4',
-  cafe: '#FBD8A5',
-  autre: '#CFE3D8',
-  plage: '#C9E4E7',
-  aeroport: '#E1EBF3',
-}
-
 async function voirSurCarte(lieuId: string): Promise<void> {
   demanderFocus(lieuId)
   await navigateTo('/carte')
@@ -45,8 +26,8 @@ async function voirSurCarte(lieuId: string): Promise<void> {
     <p class="page-eyebrow">{{ lieux.length }} lieux repérés</p>
     <h1>Guide</h1>
 
-    <section class="bloc-hors-ligne verre-forte">
-      <h2>Mode hors ligne</h2>
+    <section class="bloc-hors-ligne">
+      <h2 class="bloc-hors-ligne-eyebrow">Mode hors ligne</h2>
       <p class="hors-ligne-statut">
         {{
           cartePrete
@@ -76,20 +57,21 @@ async function voirSurCarte(lieuId: string): Promise<void> {
     </section>
 
     <section v-for="(lieuxDeLaCategorie, categorie) in groupes" :key="categorie">
-      <h2>
-        <span class="pastille" :style="{ background: teintesCategories[categorie as Categorie] }" />
-        {{ libellesCategories[categorie as Categorie] }}
-      </h2>
+      <h2>{{ CATEGORIES[categorie as Categorie].label }}</h2>
       <ul>
         <li v-for="lieu in lieuxDeLaCategorie" :key="lieu.id" class="carte-lieu verre">
-          <strong>{{ lieu.nom }}</strong>
+          <div class="carte-lieu-tete">
+            <strong>{{ lieu.nom }}</strong>
+            <span
+              class="carte-lieu-tag"
+              :style="{
+                background: CATEGORIES[categorie as Categorie].tint,
+                color: CATEGORIES[categorie as Categorie].teinte,
+              }"
+            >{{ CATEGORIES[categorie as Categorie].tag }}</span>
+          </div>
           <p v-if="lieu.mot">{{ lieu.mot }}</p>
-          <button
-            type="button"
-            class="bouton-verre"
-            :style="{ background: teintesCategories[categorie as Categorie] }"
-            @click="voirSurCarte(lieu.id)"
-          >
+          <button type="button" class="bouton-verre" @click="voirSurCarte(lieu.id)">
             Voir sur la carte
           </button>
         </li>
@@ -100,62 +82,94 @@ async function voirSurCarte(lieuId: string): Promise<void> {
 
 <style scoped>
 .bloc-hors-ligne {
-  padding: 18px;
+  padding: 20px;
   margin-bottom: 24px;
+  border-radius: 22px;
+  background: var(--ink);
+  color: #fff;
+}
+
+.bloc-hors-ligne-eyebrow {
+  margin: 0 0 10px;
+  color: #b9b5cc;
 }
 
 .hors-ligne-statut {
-  margin: 0 0 13px;
-  font: 600 12.5px/1.4 var(--font-sans);
-  color: var(--ink);
+  margin: 0 0 14px;
+  font: 700 17px/1.3 var(--font-display);
+  color: #fff;
 }
 
 .hors-ligne-etapes {
   margin: 0;
-  padding-left: 19px;
+  padding: 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  font: 400 13px/1.5 var(--font-sans);
-  color: var(--ink-soft);
+  gap: 10px;
+  counter-reset: etape;
 }
 
 .hors-ligne-etapes li {
+  display: flex;
+  gap: 11px;
+  font: 400 13px/1.45 var(--font-sans);
+  color: #e7e5ef;
   text-wrap: pretty;
 }
 
-.hors-ligne-etapes a {
-  color: var(--accent);
-  font-weight: 600;
+.hors-ligne-etapes li::before {
+  counter-increment: etape;
+  content: counter(etape);
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--lilac-chip);
+  color: var(--lilac-deep);
+  font: 700 11px/22px var(--font-display);
+  text-align: center;
 }
 
-.pastille {
-  width: 9px;
-  height: 9px;
-  border-radius: 3px;
-  display: inline-block;
+.hors-ligne-etapes a {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: underline;
 }
 
 .carte-lieu {
-  padding: 17px;
+  padding: 16px;
+}
+
+.carte-lieu-tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .carte-lieu strong {
   display: block;
-  font: 600 15.5px/1.25 var(--font-sans);
+  font: 700 16px/1.2 var(--font-display);
   color: var(--ink);
+}
+
+.carte-lieu-tag {
+  flex: none;
+  font: 700 9.5px/1 var(--font-display);
+  letter-spacing: 0.08em;
+  padding: 7px 9px;
+  border-radius: 7px;
 }
 
 .carte-lieu p {
   margin: 7px 0 0;
-  font: 400 13px/1.5 var(--font-sans);
-  color: var(--ink-soft);
+  font: 400 13px/1.45 var(--font-sans);
+  color: var(--text-body);
   text-wrap: pretty;
 }
 
 .carte-lieu .bouton-verre {
   margin-top: 13px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  border: none;
 }
 </style>

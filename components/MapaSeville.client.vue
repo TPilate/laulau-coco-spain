@@ -7,6 +7,8 @@ import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { Protocol } from 'pmtiles'
 import { lieux } from '~/data/content'
+import type { Categorie } from '~/data/content'
+import { CATEGORIES } from '~/data/categories'
 import type { TypePointPersonnalise, PointPersonnalise } from '~/composables/usePointsPersonnalises'
 import type { DemandeFocus } from '~/composables/useMapFocus'
 
@@ -29,6 +31,7 @@ function enregistrerProtocolePmtiles(): void {
 </script>
 
 <script setup lang="ts">
+const props = defineProps<{ lieuActifId?: string | null }>()
 const emit = defineEmits<{ selection: [lieuId: string] }>()
 
 const conteneurCarte = ref<HTMLDivElement | null>(null)
@@ -108,6 +111,13 @@ function creerElementMarqueurPersonnalise(type: TypePointPersonnalise): HTMLDivE
   const element = document.createElement('div')
   element.className = 'marqueur-personnalise'
   element.textContent = type === 'maison' ? '🏠' : '📌'
+  return element
+}
+
+function creerElementMarqueurLieu(categorie: Categorie): HTMLDivElement {
+  const element = document.createElement('div')
+  element.className = 'marqueur-lieu'
+  element.style.background = CATEGORIES[categorie].teinte
   return element
 }
 
@@ -244,10 +254,11 @@ watch(
     carte.on('load', () => {
       marqueurs.clear()
       for (const lieu of lieux) {
-        const marqueur = new maplibregl.Marker({ color: '#8E3514' })
+        const marqueur = new maplibregl.Marker({ element: creerElementMarqueurLieu(lieu.categorie) })
           .setLngLat([lieu.lng, lieu.lat])
           .addTo(carte!)
         marqueur.getElement().addEventListener('click', () => emit('selection', lieu.id))
+        marqueur.getElement().classList.toggle('actif', lieu.id === props.lieuActifId)
         marqueurs.set(lieu.id, marqueur)
       }
 
@@ -299,6 +310,15 @@ onUnmounted(() => {
 
 watch(position, synchroniserMarqueurPosition)
 watch(pointsPersonnalises, synchroniserPointsPersonnalises, { deep: true })
+
+watch(
+  () => props.lieuActifId,
+  (id: string | null | undefined) => {
+    for (const [lieuId, marqueur] of marqueurs) {
+      marqueur.getElement().classList.toggle('actif', lieuId === id)
+    }
+  },
+)
 
 // Sélection d'un lieu depuis la page (liste, recherche) alors que la carte est déjà montée :
 // le déclenchement au chargement (ci-dessus) ne couvre que l'arrivée depuis une autre page.
@@ -447,7 +467,8 @@ watch(demandeFocus, (demande: DemandeFocus | null) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.72);
+  background: #fff;
+  box-shadow: var(--card-shadow);
   border: none;
   color: var(--ink);
   padding: 0;
@@ -474,10 +495,10 @@ watch(demandeFocus, (demande: DemandeFocus | null) => {
   font: 500 10px/1 var(--font-mono);
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.72);
+  color: #fff;
+  background: rgba(27, 27, 31, 0.9);
   padding: 7px 10px;
-  border-radius: 11px;
+  border-radius: 9px;
 }
 
 .bouton-options {
@@ -491,7 +512,8 @@ watch(demandeFocus, (demande: DemandeFocus | null) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.72);
+  background: #fff;
+  box-shadow: var(--card-shadow);
   border: none;
   color: var(--ink);
   font-size: 14px;
@@ -499,8 +521,8 @@ watch(demandeFocus, (demande: DemandeFocus | null) => {
 }
 
 .bouton-options.actif {
-  background: rgba(58, 43, 38, 0.88);
-  color: #fdf6f1;
+  background: var(--ink);
+  color: #fff;
 }
 
 .panneau-options {
@@ -516,10 +538,8 @@ watch(demandeFocus, (demande: DemandeFocus | null) => {
   gap: 8px;
   padding: 12px;
   border-radius: 20px;
-  background: rgba(255, 248, 240, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: 0 10px 30px -10px rgba(90, 58, 44, 0.3);
+  background: #fff;
+  box-shadow: var(--card-shadow-strong);
   font-size: 0.85rem;
 }
 
@@ -569,11 +589,29 @@ watch(demandeFocus, (demande: DemandeFocus | null) => {
 </style>
 
 <style>
-/* Non scopé : cet élément est créé via document.createElement pour maplibre-gl,
-   pas par le rendu Vue, donc l'attribut data-v-* du scope ne lui est jamais appliqué. */
+/* Non scopé : ces éléments sont créés via document.createElement pour maplibre-gl,
+   pas par le rendu Vue, donc l'attribut data-v-* du scope ne leur est jamais appliqué. */
 .marqueur-personnalise {
   font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
+}
+
+.marqueur-lieu {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(20, 20, 30, 0.3);
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: width 0.2s ease, height 0.2s ease, box-shadow 0.2s ease;
+}
+
+.marqueur-lieu.actif {
+  width: 30px;
+  height: 30px;
+  border-width: 4px;
+  box-shadow: 0 4px 12px rgba(20, 20, 30, 0.4);
 }
 </style>

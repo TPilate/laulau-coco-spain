@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { evenements } from '~/data/content'
+
 const { items, ajouterItem, basculerItem, supprimerItem } = useChecklist()
 const nouvelItem = ref('')
 
@@ -8,9 +10,16 @@ function ajouter(): void {
 }
 
 const doneCount = computed(() => items.value.filter((item) => item.coche).length)
-const pourcentage = computed(() =>
-  items.value.length ? Math.round((doneCount.value / items.value.length) * 100) : 0,
-)
+
+const premierEvenement = [...evenements].sort(
+  (a, b) => new Date(a.debut).getTime() - new Date(b.debut).getTime(),
+)[0]
+
+const joursAvantDepart = computed(() => {
+  if (!premierEvenement) return null
+  const diff = new Date(premierEvenement.debut).getTime() - Date.now()
+  return Math.max(0, Math.ceil(diff / 86_400_000))
+})
 </script>
 
 <template>
@@ -26,13 +35,14 @@ const pourcentage = computed(() =>
     </form>
 
     <template v-if="items.length > 0">
-      <div class="carte-progres verre-forte">
-        <div class="progres-tete">
-          <p class="progres-pct">{{ pourcentage }}%</p>
-          <p class="progres-label">{{ doneCount }} sur {{ items.length }} cochés</p>
+      <div class="stats-checklist">
+        <div class="stat-tuile stat-tuile--sombre">
+          <p class="stat-valeur">{{ doneCount }} / {{ items.length }}</p>
+          <p class="stat-label">coché avant le départ</p>
         </div>
-        <div class="progres-barre">
-          <div class="progres-remplissage" :style="{ width: pourcentage + '%' }" />
+        <div v-if="joursAvantDepart !== null" class="stat-tuile stat-tuile--claire">
+          <p class="stat-valeur">{{ joursAvantDepart }} j</p>
+          <p class="stat-label">avant le début du séjour</p>
         </div>
       </div>
 
@@ -64,13 +74,10 @@ const pourcentage = computed(() =>
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 14px 17px;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.62);
-  backdrop-filter: blur(22px) saturate(180%);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1), 0 6px 20px -10px rgba(90, 58, 44, 0.2);
+  padding: 15px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--card-shadow);
 }
 
 .champ-verre input {
@@ -79,51 +86,53 @@ const pourcentage = computed(() =>
   border: none;
   outline: none;
   background: transparent;
-  font: 400 14.5px/1.2 var(--font-sans);
+  font: 400 13.5px/1 var(--font-sans);
   color: var(--ink);
 }
 
-.carte-progres {
-  padding: 20px;
-}
-
-.progres-tete {
+.stats-checklist {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  gap: 10px;
 }
 
-.progres-pct {
+.stat-tuile {
+  flex: 1;
+  padding: 16px;
+  border-radius: 20px;
+}
+
+.stat-tuile--sombre {
+  background: var(--ink);
+  color: #fff;
+}
+
+.stat-tuile--claire {
+  background: var(--lilac-chip);
+  color: var(--lilac-deep);
+}
+
+.stat-valeur {
   margin: 0;
-  font: 400 30px/1 var(--font-serif);
-  color: var(--ink);
+  font: 700 28px/1 var(--font-display);
 }
 
-.progres-label {
-  margin: 0;
-  font: 400 12.5px/1 var(--font-sans);
-  color: var(--text);
+.stat-label {
+  margin: 7px 0 0;
+  font: 400 11.5px/1.3 var(--font-sans);
 }
 
-.progres-barre {
-  margin-top: 13px;
-  height: 10px;
-  border-radius: 6px;
-  background: rgba(58, 43, 38, 0.08);
-  overflow: hidden;
+.stat-tuile--sombre .stat-label {
+  color: #c3bfd2;
 }
 
-.progres-remplissage {
-  height: 100%;
-  border-radius: 6px;
-  transition: width 0.45s cubic-bezier(0.22, 1, 0.3, 1);
-  background: linear-gradient(90deg, var(--lilac), var(--green));
+.stat-tuile--claire .stat-label {
+  color: var(--lilac-deep);
 }
 
 .liste-checklist {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 8px;
   margin-top: 16px;
 }
 
@@ -131,81 +140,73 @@ const pourcentage = computed(() =>
   display: flex;
   align-items: center;
   gap: 13px;
-  padding: 15px 16px;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.58);
-  backdrop-filter: blur(20px) saturate(175%);
-  -webkit-backdrop-filter: blur(20px) saturate(175%);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 6px 20px -10px rgba(90, 58, 44, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  padding: 15px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--card-shadow);
 }
 
 .item-checklist.coche {
-  background: rgba(255, 255, 255, 0.34);
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .case {
   flex: none;
-  width: 26px;
-  height: 26px;
-  border-radius: 9px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1.5px solid rgba(58, 43, 38, 0.2);
+  background: none;
+  border: 2px solid rgba(27, 27, 31, 0.25);
+  box-sizing: border-box;
 }
 
 .case.cochee {
-  background: rgba(58, 43, 38, 0.88);
-  border-color: rgba(58, 43, 38, 0.88);
+  background: var(--ink);
+  border-color: var(--ink);
 }
 
 .case-point {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: transparent;
-}
-
-.case.cochee .case-point {
-  background: #fdf6f1;
+  display: none;
 }
 
 .item-texte {
   flex: 1;
   margin: 0;
   cursor: pointer;
-  font: 500 14.5px/1.35 var(--font-sans);
+  font: 500 14px/1.25 var(--font-display);
   color: var(--ink);
 }
 
 .item-texte.coche {
-  color: #7a6a62;
+  color: #8f8ba0;
   text-decoration: line-through;
 }
 
 .supprimer {
   flex: none;
-  width: 30px;
-  height: 30px;
-  border-radius: 11px;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(58, 43, 38, 0.06);
+  background: var(--bg);
   color: var(--text);
-  font: 500 13px/1 var(--font-sans);
+  font: 500 12px/1 var(--font-sans);
   padding: 0;
 }
 
 .etat-vide {
   padding: 26px 20px;
-  border-radius: 28px;
+  border-radius: 22px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.45);
-  border: 1px dashed rgba(58, 43, 38, 0.18);
+  background: #fff;
+  box-shadow: var(--card-shadow);
 }
 
 .etat-vide p {

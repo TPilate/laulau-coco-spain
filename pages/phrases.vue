@@ -54,7 +54,7 @@ const phrasesDuTheme = computed(() => phrases.filter((p) => p.theme === themeAct
 
 <style scoped>
 .carte-phrase {
-  padding: 18px;
+  padding: 16px;
 }
 
 .carte-phrase-tete {
@@ -66,19 +66,21 @@ const phrasesDuTheme = computed(() => phrases.filter((p) => p.theme === themeAct
 
 .fr {
   margin: 0;
-  font: 400 12.5px/1.4 var(--font-sans);
+  font: 400 12.5px/1.3 var(--font-sans);
   color: var(--text);
 }
 
 .es {
-  margin: 9px 0 0;
-  font: 400 22px/1.22 var(--font-serif);
+  margin: 7px 0 0;
+  font: 700 21px/1.2 var(--font-display);
+  letter-spacing: -0.01em;
   color: var(--ink);
 }
 
 .prononciation {
-  margin: 12px 0 0;
-  font: 400 11.5px/1.2 var(--font-mono);
+  margin: 8px 0 0;
+  font: 500 11.5px/1 var(--font-mono);
+  color: var(--text-soft);
 }
 
 .favori {
@@ -89,13 +91,13 @@ const phrasesDuTheme = computed(() => phrases.filter((p) => p.theme === themeAct
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: var(--bg);
+  border: none;
   padding: 0;
 }
 
 .favori.actif {
-  background: var(--lilac);
+  background: var(--lilac-chip);
 }
 
 .favori-losange {
@@ -103,7 +105,7 @@ const phrasesDuTheme = computed(() => phrases.filter((p) => p.theme === themeAct
   height: 9px;
   transform: rotate(45deg);
   border-radius: 2px;
-  background: rgba(58, 43, 38, 0.28);
+  background: rgba(27, 27, 31, 0.28);
 }
 
 .favori.actif .favori-losange {

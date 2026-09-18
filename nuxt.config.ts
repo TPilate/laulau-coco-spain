@@ -7,28 +7,32 @@ export default defineNuxtConfig({
   // ne peut mettre en cache que ce qui vient de notre propre origine, donc charger les
   // polices depuis fonts.googleapis.com laisserait l'app sans texte lisible hors ligne
   // tant que le cache navigateur du CDN n'a pas déjà servi ces fichiers.
+  // Sous-ensembles latin/latin-ext uniquement (pas cyrillic/vietnamese, absents du
+  // contenu français/espagnol de l'app) pour ne pas gonfler le précache PWA.
   css: [
-    '@fontsource/instrument-sans/400.css',
-    '@fontsource/instrument-sans/500.css',
-    '@fontsource/instrument-sans/600.css',
-    '@fontsource/instrument-sans/700.css',
-    '@fontsource/instrument-serif/400.css',
-    '@fontsource/instrument-serif/400-italic.css',
-    // IBM Plex Mono : sous-ensembles latin/latin-ext uniquement (pas cyrillic/vietnamese,
-    // absents du contenu français/espagnol de l'app) pour ne pas gonfler le précache PWA.
-    '@fontsource/ibm-plex-mono/latin-400.css',
-    '@fontsource/ibm-plex-mono/latin-ext-400.css',
-    '@fontsource/ibm-plex-mono/latin-500.css',
-    '@fontsource/ibm-plex-mono/latin-ext-500.css',
-    '@fontsource/ibm-plex-mono/latin-600.css',
-    '@fontsource/ibm-plex-mono/latin-ext-600.css',
+    '@fontsource/dm-sans/latin-400.css',
+    '@fontsource/dm-sans/latin-ext-400.css',
+    '@fontsource/dm-sans/latin-500.css',
+    '@fontsource/dm-sans/latin-ext-500.css',
+    '@fontsource/dm-sans/latin-700.css',
+    '@fontsource/dm-sans/latin-ext-700.css',
+    '@fontsource/space-grotesk/latin-400.css',
+    '@fontsource/space-grotesk/latin-ext-400.css',
+    '@fontsource/space-grotesk/latin-500.css',
+    '@fontsource/space-grotesk/latin-ext-500.css',
+    '@fontsource/space-grotesk/latin-700.css',
+    '@fontsource/space-grotesk/latin-ext-700.css',
+    '@fontsource/jetbrains-mono/latin-400.css',
+    '@fontsource/jetbrains-mono/latin-ext-400.css',
+    '@fontsource/jetbrains-mono/latin-500.css',
+    '@fontsource/jetbrains-mono/latin-ext-500.css',
     '~/assets/css/app.css',
   ],
   app: {
     head: {
       link: [{ rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/apple-touch-icon.png' }],
       meta: [
-        { name: 'theme-color', content: '#F2ECE7' },
+        { name: 'theme-color', content: '#F2F0F7' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-title', content: 'Laulau & Coco' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
@@ -45,8 +49,8 @@ export default defineNuxtConfig({
       start_url: '/carte/',
       scope: '/',
       display: 'standalone',
-      theme_color: '#F2ECE7',
-      background_color: '#F2ECE7',
+      theme_color: '#F2F0F7',
+      background_color: '#F2F0F7',
       icons: [
         { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
         { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },

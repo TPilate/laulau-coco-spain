@@ -1,24 +1,33 @@
-/* Feuille de style globale — liquid glass pastel : lilas #E6D3EC, bleu #C9D8F0, vert #CFE3D8, pêche #FAD7C4. */
+/* Feuille de style globale — direction "Ruban" : encre noire sur lavande, cartes
+   pastel pleines, Space Grotesk + JetBrains Mono + DM Sans. Reprise du prototype
+   Claude Design "Laulau & Coco - Prototype". */
 
 :root {
-  --ink: #3a2b26;
-  --ink-soft: #4a3a34;
-  --text: #5c4a43;
-  --text-mono: #6e5c54;
-  --accent: #8e3514;
+  --ink: #1b1b1f;
+  --text: #5e5b6e;
+  --text-body: #4f4c5e;
+  --text-soft: #7b7690;
+  --accent: #8f3317;
   --accent-hover: #6e250c;
-  --lilac: #e6d3ec;
-  --lilac-deep: #5b2e6b;
-  --blue: #c9d8f0;
-  --green: #cfe3d8;
-  --peach: #fad7c4;
-  --bg: #f2ece7;
-  --glass: rgba(255, 255, 255, 0.55);
-  --glass-strong: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.8);
-  --font-sans: 'Instrument Sans', system-ui, sans-serif;
-  --font-serif: 'Instrument Serif', serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  --lilac: #efe7fb;
+  --lilac-deep: #3c2f55;
+  --lilac-chip: #d7c6ef;
+  --green: #d8eadf;
+  --green-deep: #24483a;
+  --green-chip: #c3ddd2;
+  --peach: #fbe2d3;
+  --peach-deep: #7d3b22;
+  --yellow: #fdf1d2;
+  --yellow-deep: #5f4a15;
+  --blue: #dfe6f7;
+  --blue-deep: #2b3a63;
+  --bg: #f2f0f7;
+  --card: #ffffff;
+  --card-shadow: 0 2px 12px rgba(50, 40, 80, 0.07);
+  --card-shadow-strong: 0 3px 16px rgba(50, 40, 80, 0.09);
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 *,
@@ -34,9 +43,7 @@ body {
 }
 
 body {
-  background: radial-gradient(120% 60% at 12% 0%, #f0e4f3 0%, rgba(240, 228, 243, 0) 60%),
-    radial-gradient(100% 50% at 92% 8%, #dce8f6 0%, rgba(220, 232, 246, 0) 62%),
-    radial-gradient(120% 60% at 50% 100%, #eaefe7 0%, rgba(234, 239, 231, 0) 64%), var(--bg);
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -45,90 +52,43 @@ body {
 }
 
 a {
-  color: var(--accent);
+  color: var(--lilac-deep);
   text-decoration: none;
 }
 
 a:hover {
-  color: var(--accent-hover);
+  color: var(--accent);
 }
 
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.985);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes drift {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(20px, -24px, 0) scale(1.09);
-  }
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes sheen {
-  0% {
-    transform: translateX(-120%);
-  }
-  100% {
-    transform: translateX(230%);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.55;
-  }
-  70% {
-    transform: scale(2.4);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(2.4);
-    opacity: 0;
-  }
-}
-
-/* Contenu des onglets : la barre de navigation flottante + un peu d'air. */
+/* Contenu des onglets : la barre de navigation fixe + un peu d'air. */
 .page {
   position: relative;
   padding: 22px 20px 140px;
   max-width: 480px;
   margin: 0 auto;
-  animation: rise 0.42s cubic-bezier(0.22, 1, 0.3, 1) both;
 }
 
 .page-eyebrow {
   margin: 0;
-  font: 500 11px/1 var(--font-mono);
-  letter-spacing: 0.1em;
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--text-mono);
+  color: var(--text);
 }
 
 .page h1 {
-  margin: 7px 0 18px;
-  font: 400 32px/1.05 var(--font-serif);
+  margin: 16px 0 0;
+  font: 700 38px/1 var(--font-display);
+  letter-spacing: -0.03em;
   color: var(--ink);
 }
 
 .page h2 {
   margin: 0 0 11px;
-  font: 500 11px/1 var(--font-mono);
-  letter-spacing: 0.1em;
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--text-mono);
+  color: var(--text);
   display: flex;
   align-items: center;
   gap: 9px;
@@ -140,55 +100,50 @@ a:hover {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 10px;
 }
 
 .page section + section {
   margin-top: 24px;
 }
 
-/* Cartes de verre réutilisables. */
+/* Cartes pleines réutilisables (plus de flou "liquid glass" : blocs pastel nets). */
 .verre {
-  background: var(--glass);
-  backdrop-filter: blur(22px) saturate(180%);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 10px 28px -12px rgba(90, 58, 44, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  border-radius: 26px;
+  background: var(--card);
+  border: none;
+  box-shadow: var(--card-shadow);
+  border-radius: 18px;
 }
 
 .verre-forte {
-  background: var(--glass-strong);
-  backdrop-filter: blur(26px) saturate(190%);
-  -webkit-backdrop-filter: blur(26px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.88);
-  box-shadow: 0 16px 40px -14px rgba(90, 58, 44, 0.3), inset 0 1px 0 rgba(255, 255, 255, 1);
-  border-radius: 28px;
+  background: var(--card);
+  border: none;
+  box-shadow: var(--card-shadow-strong);
+  border-radius: 22px;
 }
 
 .puce {
   flex: none;
-  padding: 11px 16px;
-  border-radius: 18px;
-  font: 600 12.5px/1 var(--font-sans);
+  padding: 11px 13px;
+  border-radius: 999px;
+  font: 600 12px/1 var(--font-display);
   cursor: pointer;
-  backdrop-filter: blur(18px) saturate(170%);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 14px rgba(90, 58, 44, 0.1);
-  background: rgba(255, 255, 255, 0.52);
-  color: var(--text);
-  transition: background 0.2s ease;
+  border: none;
+  background: var(--card);
+  color: var(--text-body);
+  box-shadow: var(--card-shadow);
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .puce.actif {
-  background: rgba(58, 43, 38, 0.88);
-  color: #fdf6f1;
+  background: var(--ink);
+  color: #fff;
+  box-shadow: none;
 }
 
 .puces-scroll {
   display: flex;
-  gap: 8px;
+  gap: 7px;
   margin: 0 -20px 18px;
   padding: 0 20px;
   overflow-x: auto;
@@ -203,10 +158,10 @@ a:hover {
 .bouton-plein {
   display: inline-block;
   padding: 13px 18px;
-  border-radius: 18px;
-  background: rgba(58, 43, 38, 0.88);
-  color: #fdf6f1;
-  font: 600 13px/1 var(--font-sans);
+  border-radius: 12px;
+  background: var(--ink);
+  color: #fff;
+  font: 700 13px/1 var(--font-display);
   border: none;
   cursor: pointer;
   text-align: center;
@@ -215,26 +170,26 @@ a:hover {
 }
 
 .bouton-plein:hover {
-  background: var(--ink);
-  color: #fdf6f1;
+  background: #000;
+  color: #fff;
 }
 
 .bouton-verre {
   display: inline-block;
-  padding: 10px 14px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  font: 600 12px/1 var(--font-sans);
-  color: var(--ink);
+  padding: 12px 14px;
+  border-radius: 11px;
+  background: var(--lilac);
+  border: none;
+  font: 700 12px/1 var(--font-display);
+  color: var(--lilac-deep);
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.2s ease;
+  transition: filter 0.2s ease;
 }
 
 .bouton-verre:hover {
-  background: #fff;
-  color: var(--ink);
+  filter: brightness(0.96);
+  color: var(--lilac-deep);
 }
 
 /* Boutons génériques restants (popups MapLibre créés sans classe). Tout bouton
@@ -245,8 +200,8 @@ button:not([class]) {
   padding: 8px 14px;
   border: none;
   border-radius: 999px;
-  background: rgba(58, 43, 38, 0.88);
-  color: #fdf6f1;
+  background: var(--ink);
+  color: #fff;
   cursor: pointer;
 }
 

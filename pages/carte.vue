@@ -1,21 +1,12 @@
 <script setup lang="ts">
 import { lieux } from '~/data/content'
 import type { Categorie } from '~/data/content'
+import { CATEGORIES } from '~/data/categories'
 
 const { demanderFocus } = useMapFocus()
 
-const CAT_META: Record<Categorie, { label: string; tint: string; tag: string }> = {
-  'a-voir': { label: 'À voir', tint: '#E6D3EC', tag: 'AVO' },
-  barrio: { label: 'Quartiers', tint: '#C9D8F0', tag: 'QUA' },
-  resto: { label: 'Restos', tint: '#FAD7C4', tag: 'RES' },
-  cafe: { label: 'Cafés', tint: '#FBD8A5', tag: 'CAF' },
-  autre: { label: 'Autres', tint: '#CFE3D8', tag: 'AUT' },
-  plage: { label: 'Plages', tint: '#C9E4E7', tag: 'PLA' },
-  aeroport: { label: 'Aéroport', tint: '#E1EBF3', tag: 'AER' },
-}
-
 function infosCategorie(categorie: Categorie) {
-  return CAT_META[categorie]
+  return CATEGORIES[categorie]
 }
 
 const categories = [...new Set(lieux.map((l) => l.categorie))].map((cat) => ({
@@ -40,6 +31,7 @@ const spotsFiltres = computed(() => {
       nom: l.nom,
       categorieLabel: infosCategorie(l.categorie).label,
       tint: infosCategorie(l.categorie).tint,
+      teinte: infosCategorie(l.categorie).teinte,
       tag: infosCategorie(l.categorie).tag,
     }))
 })
@@ -85,7 +77,7 @@ function effacerSelection(): void {
     </div>
 
     <div class="boite-carte">
-      <MapaSeville @selection="selectionnerDepuisCarte" />
+      <MapaSeville :lieu-actif-id="selectionneeId" @selection="selectionnerDepuisCarte" />
 
       <div class="barre-recherche">
         <span class="barre-recherche-point" />
@@ -120,48 +112,50 @@ function effacerSelection(): void {
       </div>
     </div>
 
-    <div class="puces-scroll">
-      <button
-        type="button"
-        class="puce"
-        :class="{ actif: catActive === 'Tout' }"
-        @click="catActive = 'Tout'"
-      >
-        Tout
-      </button>
-      <button
-        v-for="cat in categories"
-        :key="cat.cle"
-        type="button"
-        class="puce"
-        :class="{ actif: catActive === cat.label }"
-        @click="catActive = cat.label"
-      >
-        {{ cat.label }}
-      </button>
+    <div class="feuille-lieux">
+      <p class="page-eyebrow compteur">
+        {{ spotsFiltres.length }} {{ spotsFiltres.length > 1 ? 'lieux repérés' : 'lieu repéré' }}
+      </p>
+
+      <div class="puces-scroll">
+        <button
+          type="button"
+          class="puce"
+          :class="{ actif: catActive === 'Tout' }"
+          @click="catActive = 'Tout'"
+        >
+          Tout
+        </button>
+        <button
+          v-for="cat in categories"
+          :key="cat.cle"
+          type="button"
+          class="puce"
+          :class="{ actif: catActive === cat.label }"
+          @click="catActive = cat.label"
+        >
+          {{ cat.label }}
+        </button>
+      </div>
+
+      <ul class="liste-spots">
+        <li
+          v-for="spot in spotsFiltres"
+          :key="spot.id"
+          class="spot"
+          :class="{ actif: selectionneeId === spot.id }"
+          @click="selectionnerDepuisListe(spot.id)"
+        >
+          <div class="spot-tag" :style="{ background: spot.tint, color: spot.teinte }">
+            <span>{{ spot.tag }}</span>
+          </div>
+          <div class="spot-texte">
+            <p class="spot-nom">{{ spot.nom }}</p>
+            <p class="spot-categorie">{{ spot.categorieLabel }}</p>
+          </div>
+        </li>
+      </ul>
     </div>
-
-    <p class="page-eyebrow compteur">
-      {{ spotsFiltres.length }} {{ spotsFiltres.length > 1 ? 'lieux' : 'lieu' }}
-    </p>
-
-    <ul class="liste-spots">
-      <li
-        v-for="spot in spotsFiltres"
-        :key="spot.id"
-        class="spot verre"
-        :class="{ actif: selectionneeId === spot.id }"
-        @click="selectionnerDepuisListe(spot.id)"
-      >
-        <div class="spot-tag" :style="{ background: spot.tint }">
-          <span>{{ spot.tag }}</span>
-        </div>
-        <div class="spot-texte">
-          <p class="spot-nom">{{ spot.nom }}</p>
-          <p class="spot-categorie">{{ spot.categorieLabel }}</p>
-        </div>
-      </li>
-    </ul>
   </div>
 </template>
 
@@ -176,31 +170,27 @@ function effacerSelection(): void {
 
 .bouton-sos {
   flex: none;
-  padding: 12px 15px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 6px 20px rgba(140, 60, 40, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  font: 700 11px/1 var(--font-sans);
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: var(--ink);
+  box-shadow: none;
+  border: none;
+  font: 700 10.5px/1 var(--font-display);
   letter-spacing: 0.08em;
-  color: var(--accent);
+  color: #fff;
 }
 
 .bouton-sos:hover {
-  background: rgba(255, 255, 255, 0.78);
-  color: var(--accent);
+  background: #000;
+  color: #fff;
 }
 
 .boite-carte {
   position: relative;
-  height: 262px;
-  border-radius: 30px;
+  height: 260px;
+  border-radius: 22px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 14px 40px -12px rgba(90, 58, 44, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  background: #e9efea;
+  background: #e7ebe4;
 }
 
 .barre-recherche {
@@ -213,19 +203,16 @@ function effacerSelection(): void {
   align-items: center;
   gap: 10px;
   padding: 13px 16px;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.62);
-  backdrop-filter: blur(22px) saturate(180%);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 8px 24px rgba(90, 58, 44, 0.16), inset 0 1px 0 rgba(255, 255, 255, 1);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(40, 35, 60, 0.16);
 }
 
 .barre-recherche-point {
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  border: 2px solid rgba(58, 43, 38, 0.45);
+  border: 2px solid rgba(27, 27, 31, 0.4);
   flex: none;
 }
 
@@ -235,7 +222,7 @@ function effacerSelection(): void {
   border: none;
   outline: none;
   background: transparent;
-  font: 400 14px/1.2 var(--font-sans);
+  font: 400 13.5px/1 var(--font-sans);
   color: var(--ink);
 }
 
@@ -257,22 +244,22 @@ function effacerSelection(): void {
 
 .carte-selection-nom {
   display: block;
-  margin: 8px 0 0;
-  font: 400 23px/1.15 var(--font-serif);
-  letter-spacing: normal;
-  color: var(--ink);
+  margin: 9px 0 0;
+  font: 700 21px/1.2 var(--font-display);
+  letter-spacing: -0.01em;
   text-transform: none;
+  color: var(--ink);
 }
 
 .bouton-fermer {
   flex: none;
   width: 32px;
   height: 32px;
-  border-radius: 12px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(58, 43, 38, 0.07);
+  background: var(--bg);
   color: var(--text);
   font: 500 14px/1 var(--font-sans);
   padding: 0;
@@ -280,15 +267,16 @@ function effacerSelection(): void {
 
 .carte-selection-mot {
   margin: 10px 0 0;
-  font: 400 13.5px/1.5 var(--font-sans);
-  color: var(--ink-soft);
+  font: 400 13px/1.45 var(--font-sans);
+  color: var(--text-body);
   text-wrap: pretty;
 }
 
 .carte-selection-actions {
   display: flex;
+  align-items: center;
   gap: 9px;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .carte-selection-itineraire {
@@ -297,52 +285,58 @@ function effacerSelection(): void {
 
 .carte-selection-coord {
   flex: none;
-  padding: 13px 18px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  font: 600 13px/1 var(--font-mono);
+  padding: 13px 15px;
+  border-radius: 11px;
+  background: var(--bg);
+  font: 500 12px/1 var(--font-mono);
   color: var(--ink);
 }
 
+.feuille-lieux {
+  margin-top: 18px;
+  background: #fff;
+  border-radius: 22px;
+  padding: 18px 18px 6px;
+  box-shadow: var(--card-shadow);
+}
+
 .compteur {
-  margin: 22px 0 10px;
+  margin: 0 0 14px;
 }
 
 .liste-spots {
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 9px;
+  margin-bottom: 12px;
 }
 
 .spot {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
+  gap: 12px;
+  padding: 10px;
   cursor: pointer;
-  border-radius: 26px;
-  transition: background 0.2s ease;
+  border-radius: 16px;
+  transition: box-shadow 0.2s ease;
 }
 
 .spot.actif {
-  background: rgba(255, 255, 255, 0.82) !important;
+  box-shadow: 0 0 0 2px var(--ink);
 }
 
 .spot-tag {
   flex: none;
-  width: 46px;
-  height: 46px;
-  border-radius: 16px;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .spot-tag span {
-  font: 500 9px/1 var(--font-mono);
-  color: var(--ink-soft);
+  font: 700 11px/1 var(--font-display);
 }
 
 .spot-texte {
@@ -352,13 +346,13 @@ function effacerSelection(): void {
 
 .spot-nom {
   margin: 0;
-  font: 600 15px/1.2 var(--font-sans);
+  font: 700 15px/1.2 var(--font-display);
   color: var(--ink);
 }
 
 .spot-categorie {
-  margin: 4px 0 0;
-  font: 400 12.5px/1.35 var(--font-sans);
+  margin: 3px 0 0;
+  font: 400 12px/1.35 var(--font-sans);
   color: var(--text);
 }
 </style>

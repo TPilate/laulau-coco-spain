@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { evenements, lieux, messages } from '~/data/content'
+import { CATEGORIES } from '~/data/categories'
 
 const { demanderFocus } = useMapFocus()
 const { marquerCommeLu } = useMessages()
@@ -23,6 +24,11 @@ onUnmounted(() => {
 
 function nomLieu(lieuId: string): string {
   return lieux.find((lieu) => lieu.id === lieuId)?.nom ?? lieuId
+}
+
+function infosCategorieLieu(lieuId: string) {
+  const categorie = lieux.find((lieu) => lieu.id === lieuId)?.categorie ?? 'autre'
+  return CATEGORIES[categorie]
 }
 
 async function voirSurCarte(lieuId: string): Promise<void> {
@@ -79,17 +85,14 @@ function statutCouleur(evenement: (typeof evenements)[number]): string {
     <p class="page-eyebrow">{{ formatteurJour.format(maintenant) }}</p>
     <h1>À venir</h1>
 
-    <div v-if="prochain" class="hero-evenement verre-forte">
-      <div class="sheen" />
-      <div class="hero-contenu">
-        <span class="hero-statut">{{ decrireStatutEvenement(prochain, maintenant) }}</span>
-        <h2 class="hero-titre">{{ prochain.titre }}</h2>
-        <p class="hero-lieu">{{ nomLieu(prochain.lieuId) }} · {{ formatteurHeure.format(new Date(prochain.debut)) }}</p>
-        <p v-if="prochain.details" class="hero-details">{{ prochain.details }}</p>
-        <button type="button" class="bouton-plein hero-bouton" @click="voirSurCarte(prochain.lieuId)">
-          Voir sur la carte
-        </button>
-      </div>
+    <div v-if="prochain" class="hero-evenement">
+      <span class="hero-statut">{{ decrireStatutEvenement(prochain, maintenant) }}</span>
+      <h2 class="hero-titre">{{ prochain.titre }}</h2>
+      <p class="hero-lieu">{{ nomLieu(prochain.lieuId) }} · {{ formatteurHeure.format(new Date(prochain.debut)) }}</p>
+      <p v-if="prochain.details" class="hero-details">{{ prochain.details }}</p>
+      <button type="button" class="bouton-plein hero-bouton" @click="voirSurCarte(prochain.lieuId)">
+        Voir sur la carte
+      </button>
     </div>
 
     <div v-if="messageActuel" class="carte-message">
@@ -112,20 +115,31 @@ function statutCouleur(evenement: (typeof evenements)[number]): string {
         <li
           v-for="evenement in evenementsTries"
           :key="evenement.id"
-          class="evenement verre"
+          class="evenement"
           :class="statutCouleur(evenement)"
         >
           <span class="evenement-point" />
-          <div class="evenement-tete">
-            <p class="evenement-statut">{{ decrireStatutEvenement(evenement, maintenant) }}</p>
-            <span class="evenement-heure">{{ formatteurHeure.format(new Date(evenement.debut)) }}</span>
+          <div class="evenement-carte">
+            <div class="evenement-tete">
+              <span class="evenement-heure">{{ formatteurHeure.format(new Date(evenement.debut)) }}</span>
+              <span
+                class="evenement-tag"
+                :style="{
+                  background: infosCategorieLieu(evenement.lieuId).tint,
+                  color: infosCategorieLieu(evenement.lieuId).teinte,
+                }"
+              >{{ infosCategorieLieu(evenement.lieuId).tag }}</span>
+            </div>
+            <p class="evenement-titre">{{ evenement.titre }}</p>
+            <p class="evenement-lieu">{{ nomLieu(evenement.lieuId) }}</p>
+            <p v-if="evenement.details" class="evenement-details">{{ evenement.details }}</p>
+            <div class="evenement-pied">
+              <button type="button" class="bouton-plein evenement-bouton" @click="voirSurCarte(evenement.lieuId)">
+                Voir sur la carte
+              </button>
+              <span class="evenement-statut">{{ decrireStatutEvenement(evenement, maintenant) }}</span>
+            </div>
           </div>
-          <p class="evenement-titre">{{ evenement.titre }}</p>
-          <p class="evenement-lieu">{{ nomLieu(evenement.lieuId) }}</p>
-          <p v-if="evenement.details" class="evenement-details">{{ evenement.details }}</p>
-          <button type="button" class="bouton-verre" @click="voirSurCarte(evenement.lieuId)">
-            Voir sur la carte
-          </button>
         </li>
       </ul>
     </div>
@@ -134,32 +148,18 @@ function statutCouleur(evenement: (typeof evenements)[number]): string {
 
 <style scoped>
 .hero-evenement {
-  position: relative;
-  overflow: hidden;
   padding: 22px;
-  background: linear-gradient(140deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.44));
-}
-
-.sheen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
-  animation: sheen 6.5s ease-in-out infinite;
-}
-
-.hero-contenu {
-  position: relative;
+  border-radius: 22px;
+  background: var(--ink);
+  color: #fff;
 }
 
 .hero-statut {
   display: inline-block;
   padding: 7px 12px;
-  border-radius: 12px;
-  background: var(--lilac);
-  font: 700 10.5px/1 var(--font-sans);
+  border-radius: 8px;
+  background: var(--lilac-chip);
+  font: 700 10.5px/1 var(--font-display);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--lilac-deep);
@@ -168,22 +168,22 @@ function statutCouleur(evenement: (typeof evenements)[number]): string {
 .hero-titre {
   display: block;
   margin: 14px 0 0;
-  font: 400 26px/1.12 var(--font-serif);
-  letter-spacing: normal;
-  color: var(--ink);
+  font: 700 26px/1.15 var(--font-display);
+  letter-spacing: -0.02em;
   text-transform: none;
+  color: #fff;
 }
 
 .hero-lieu {
   margin: 9px 0 0;
   font: 400 13.5px/1.45 var(--font-sans);
-  color: var(--ink-soft);
+  color: #d6d3e2;
 }
 
 .hero-details {
   margin: 6px 0 0;
   font: 400 13px/1.45 var(--font-sans);
-  color: var(--text);
+  color: #c3bfd2;
   text-wrap: pretty;
 }
 
@@ -192,137 +192,160 @@ function statutCouleur(evenement: (typeof evenements)[number]): string {
   margin-top: 18px;
   width: 100%;
   border: none;
+  background: #fff;
+  color: var(--ink);
+}
+
+.hero-bouton:hover {
+  background: #fff;
+  filter: brightness(0.96);
 }
 
 .carte-message {
   margin-top: 14px;
   padding: 19px;
-  border-radius: 28px;
-  background: linear-gradient(150deg, rgba(235, 210, 242, 0.85), rgba(248, 235, 252, 0.6));
-  backdrop-filter: blur(24px) saturate(185%);
-  -webkit-backdrop-filter: blur(24px) saturate(185%);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 14px 36px -14px rgba(120, 80, 140, 0.3), inset 0 1px 0 rgba(255, 255, 255, 1);
+  border-radius: 22px;
+  background: var(--lilac);
 }
 
 .message-titre {
   margin: 9px 0 0;
-  font: italic 400 21px/1.2 var(--font-serif);
+  font: 700 20px/1.2 var(--font-display);
   color: var(--ink);
 }
 
 .message-texte {
   margin: 8px 0 0;
   font: 400 13.5px/1.5 var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--text-body);
   text-wrap: pretty;
 }
 
 .message-file {
   margin: 12px 0 0;
   font: 500 10.5px/1 var(--font-mono);
-  color: var(--text);
+  color: var(--lilac-deep);
 }
 
 .ligne-temps {
   position: relative;
-  padding-left: 22px;
-  margin-top: 12px;
+  padding-left: 26px;
+  margin-top: 14px;
 }
 
 .ligne-temps-trait {
   position: absolute;
-  left: 5px;
-  top: 6px;
+  left: 7px;
+  top: 10px;
   bottom: 10px;
   width: 2px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, var(--lilac), var(--blue), var(--green));
+  background: linear-gradient(var(--lilac-chip), var(--peach));
 }
 
 .ligne-temps-liste {
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 12px;
 }
 
 .evenement {
   position: relative;
-  padding: 16px 17px;
 }
 
-.evenement.passe {
-  background: rgba(255, 255, 255, 0.34);
+.evenement-carte {
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--card-shadow);
+}
+
+.evenement.passe .evenement-carte {
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .evenement-point {
   position: absolute;
-  left: -21px;
-  top: 23px;
-  width: 10px;
-  height: 10px;
+  left: -26px;
+  top: 16px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: var(--lilac);
-  box-shadow: 0 0 0 3px rgba(253, 247, 243, 0.95);
+  background: #fff;
+  border: 3px solid var(--lilac-chip);
+  box-sizing: border-box;
 }
 
 .evenement.maintenant .evenement-point {
-  background: var(--accent);
+  background: var(--ink);
+  border-color: var(--bg);
 }
 
 .evenement.passe .evenement-point {
-  background: rgba(58, 43, 38, 0.25);
+  background: #fff;
+  border-color: rgba(27, 27, 31, 0.15);
 }
 
 .evenement-tete {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
 }
 
-.evenement-statut {
-  margin: 0;
-  font: 500 10.5px/1 var(--font-mono);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--lilac-deep);
-}
-
-.evenement.maintenant .evenement-statut {
-  color: var(--accent);
-}
-
-.evenement.passe .evenement-statut {
-  color: #7a6a62;
-}
-
 .evenement-heure {
-  flex: none;
   font: 500 11px/1 var(--font-mono);
   color: var(--text);
 }
 
+.evenement-tag {
+  flex: none;
+  font: 700 9.5px/1 var(--font-display);
+  letter-spacing: 0.08em;
+  padding: 7px 9px;
+  border-radius: 7px;
+}
+
 .evenement-titre {
-  margin: 8px 0 0;
-  font: 600 15.5px/1.25 var(--font-sans);
+  margin: 9px 0 0;
+  font: 700 17px/1.2 var(--font-display);
+  letter-spacing: -0.01em;
   color: var(--ink);
 }
 
 .evenement-lieu {
-  margin: 5px 0 0;
+  margin: 4px 0 0;
   font: 400 12.5px/1.4 var(--font-sans);
   color: var(--text);
 }
 
 .evenement-details {
-  margin: 5px 0 0;
-  font: 400 12.5px/1.4 var(--font-sans);
-  color: var(--text);
+  margin: 6px 0 0;
+  font: 400 13px/1.45 var(--font-sans);
+  color: var(--text-body);
   text-wrap: pretty;
 }
 
-.evenement .bouton-verre {
-  margin-top: 13px;
+.evenement-pied {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.evenement-bouton {
+  padding: 13px 15px;
+  border-radius: 11px;
+}
+
+.evenement-statut {
+  font: 500 10.5px/1 var(--font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.evenement.maintenant .evenement-statut {
+  color: var(--accent);
 }
 </style>
