@@ -55,6 +55,8 @@ const {
 } = usePointsPersonnalises()
 
 const optionsOuvertes = ref(false)
+const carteAgrandie = ref(false)
+let observateurTaille: ResizeObserver | null = null
 const modeSelectionManuelle = ref(false)
 const modeAjoutPoint = ref(false)
 const coordonneesNouveauPoint = ref<{ lat: number; lng: number } | null>(null)
@@ -65,6 +67,10 @@ const erreurCache = ref(false)
 
 function basculerOptions(): void {
   optionsOuvertes.value = !optionsOuvertes.value
+}
+
+function basculerAgrandissement(): void {
+  carteAgrandie.value = !carteAgrandie.value
 }
 
 function centrerSur(lat: number, lng: number, zoom = 15): void {
@@ -224,6 +230,12 @@ watch(
       zoom: 13,
     })
 
+    // Le bouton d'agrandissement change les dimensions du conteneur via CSS (pas
+    // maplibre lui-même) : sans resize(), le canvas WebGL garde sa taille d'origine
+    // et la carte reste minuscule dans un coin de l'écran une fois agrandie.
+    observateurTaille = new ResizeObserver(() => carte?.resize())
+    observateurTaille.observe(el)
+
     // usePosition() est appelé pendant setup() : une position manuelle restaurée depuis
     // le stockage existe déjà avant l'enregistrement du watch de position, qui ne se
     // déclencherait donc jamais pour elle. On applique l'état initial explicitement.
@@ -275,6 +287,8 @@ watch(
 onUnmounted(() => {
   // Sans remove(), chaque visite de /carte abandonne un contexte WebGL vivant : les
   // navigateurs en plafonnent le nombre (~16) et la carte finit par ne plus s'afficher.
+  observateurTaille?.disconnect()
+  observateurTaille = null
   marqueurPosition?.remove()
   marqueurPosition = null
   marqueurs.clear()
@@ -300,7 +314,7 @@ watch(demandeFocus, (demande: DemandeFocus | null) => {
 </script>
 
 <template>
-  <div class="carte-conteneur">
+  <div class="carte-conteneur" :class="{ 'carte-conteneur--agrandie': carteAgrandie }">
     <div ref="conteneurCarte" class="carte-maplibre" />
 
     <p class="statut-cache">
@@ -314,6 +328,34 @@ watch(demandeFocus, (demande: DemandeFocus | null) => {
               : 'Préparation…'
       }}
     </p>
+
+    <button
+      type="button"
+      class="bouton-agrandir"
+      :aria-label="carteAgrandie ? 'Réduire la carte' : 'Agrandir la carte'"
+      @click="basculerAgrandissement"
+    >
+      <svg v-if="!carteAgrandie" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+        <path
+          d="M1 5V1h4M9 1h4v4M13 9v4H9M5 13H1V9"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <svg v-else width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+        <path
+          d="M1 4.5h4v-4M13 4.5H9v-4M13 9.5H9v4M1 9.5h4v4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
 
     <button
       type="button"
@@ -387,6 +429,40 @@ watch(demandeFocus, (demande: DemandeFocus | null) => {
 .carte-maplibre {
   position: absolute;
   inset: 0;
+}
+
+.carte-conteneur--agrandie {
+  position: fixed;
+  z-index: 60;
+}
+
+.bouton-agrandir {
+  position: absolute;
+  right: 52px;
+  bottom: 12px;
+  z-index: 3;
+  width: 30px;
+  height: 30px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.72);
+  border: none;
+  color: var(--ink);
+  padding: 0;
+}
+
+.carte-conteneur--agrandie .bouton-agrandir {
+  bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.carte-conteneur--agrandie .bouton-options {
+  bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.carte-conteneur--agrandie .statut-cache {
+  bottom: calc(12px + env(safe-area-inset-bottom));
 }
 
 .statut-cache {

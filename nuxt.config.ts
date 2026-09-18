@@ -3,18 +3,30 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2026-09-17',
   modules: ['@nuxt/eslint', '@vite-pwa/nuxt'],
-  css: ['~/assets/css/app.css'],
+  // Polices auto-hébergées (@fontsource) plutôt que Google Fonts : le service worker
+  // ne peut mettre en cache que ce qui vient de notre propre origine, donc charger les
+  // polices depuis fonts.googleapis.com laisserait l'app sans texte lisible hors ligne
+  // tant que le cache navigateur du CDN n'a pas déjà servi ces fichiers.
+  css: [
+    '@fontsource/instrument-sans/400.css',
+    '@fontsource/instrument-sans/500.css',
+    '@fontsource/instrument-sans/600.css',
+    '@fontsource/instrument-sans/700.css',
+    '@fontsource/instrument-serif/400.css',
+    '@fontsource/instrument-serif/400-italic.css',
+    // IBM Plex Mono : sous-ensembles latin/latin-ext uniquement (pas cyrillic/vietnamese,
+    // absents du contenu français/espagnol de l'app) pour ne pas gonfler le précache PWA.
+    '@fontsource/ibm-plex-mono/latin-400.css',
+    '@fontsource/ibm-plex-mono/latin-ext-400.css',
+    '@fontsource/ibm-plex-mono/latin-500.css',
+    '@fontsource/ibm-plex-mono/latin-ext-500.css',
+    '@fontsource/ibm-plex-mono/latin-600.css',
+    '@fontsource/ibm-plex-mono/latin-ext-600.css',
+    '~/assets/css/app.css',
+  ],
   app: {
     head: {
-      link: [
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/apple-touch-icon.png' },
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        {
-          rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap',
-        },
-      ],
+      link: [{ rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/apple-touch-icon.png' }],
       meta: [
         { name: 'theme-color', content: '#F2ECE7' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },

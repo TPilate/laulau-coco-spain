@@ -3,6 +3,14 @@ import { lieux } from '~/data/content'
 import type { Categorie } from '~/data/content'
 
 const { demanderFocus } = useMapFocus()
+const { pret: cartePrete, telechargementEnCours, assurerCarteEnCache } = useMapCache()
+const erreurCache = ref(false)
+
+onMounted(() => {
+  assurerCarteEnCache().catch(() => {
+    erreurCache.value = true
+  })
+})
 
 const groupes = groupLieuxParCategorie(lieux)
 
@@ -37,6 +45,36 @@ async function voirSurCarte(lieuId: string): Promise<void> {
     <p class="page-eyebrow">{{ lieux.length }} lieux repérés</p>
     <h1>Guide</h1>
 
+    <section class="bloc-hors-ligne verre-forte">
+      <h2>Mode hors ligne</h2>
+      <p class="hors-ligne-statut">
+        {{
+          cartePrete
+            ? 'Carte téléchargée ✓ — prête pour le mode avion.'
+            : erreurCache
+              ? 'Hors ligne — reconnecte-toi une fois pour finir le téléchargement.'
+              : telechargementEnCours
+                ? 'Téléchargement de la carte en cours…'
+                : 'Préparation de la carte…'
+        }}
+      </p>
+      <ol class="hors-ligne-etapes">
+        <li>
+          Ouvre l'app une première fois en wifi ou en données, et attends que l'onglet
+          <NuxtLink to="/carte">Carte</NuxtLink> affiche « Carte prête ✓ ».
+        </li>
+        <li>
+          Ajoute l'app à l'écran d'accueil : sur iPhone (Safari), icône Partager puis
+          « Sur l'écran d'accueil » ; sur Android (Chrome), menu ⋮ puis « Installer l'application ».
+        </li>
+        <li>Ouvre toujours l'app depuis son icône plutôt que depuis le navigateur.</li>
+        <li>
+          Avant de partir, teste en mode avion : carte, position, guide, phrases et checklist
+          doivent tous s'afficher.
+        </li>
+      </ol>
+    </section>
+
     <section v-for="(lieuxDeLaCategorie, categorie) in groupes" :key="categorie">
       <h2>
         <span class="pastille" :style="{ background: teintesCategories[categorie as Categorie] }" />
@@ -61,6 +99,36 @@ async function voirSurCarte(lieuId: string): Promise<void> {
 </template>
 
 <style scoped>
+.bloc-hors-ligne {
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+.hors-ligne-statut {
+  margin: 0 0 13px;
+  font: 600 12.5px/1.4 var(--font-sans);
+  color: var(--ink);
+}
+
+.hors-ligne-etapes {
+  margin: 0;
+  padding-left: 19px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font: 400 13px/1.5 var(--font-sans);
+  color: var(--ink-soft);
+}
+
+.hors-ligne-etapes li {
+  text-wrap: pretty;
+}
+
+.hors-ligne-etapes a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .pastille {
   width: 9px;
   height: 9px;
