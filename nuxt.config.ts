@@ -40,7 +40,11 @@ export default defineNuxtConfig({
     },
   },
   pwa: {
-    registerType: 'autoUpdate',
+    // 'prompt' plutôt que 'autoUpdate' : autoUpdate relance une vérification réseau
+    // (registration.update()) à chaque ouverture, ce qui retarde la prise de contrôle du
+    // Service Worker par la page tout juste rouverte — un facteur aggravant plausible pour
+    // le bug iOS où un relancement à froid hors ligne échoue avant même que le JS démarre.
+    registerType: 'prompt',
     manifest: {
       name: 'Laulau & Coco',
       short_name: 'L&C',

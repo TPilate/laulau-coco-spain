@@ -5,19 +5,21 @@
 // mémoire de répertoires de tuiles de l'instance précédente.
 import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { Protocol } from 'pmtiles'
+import { PMTiles, Protocol } from 'pmtiles'
 import { lieux } from '~/data/content'
 import type { Categorie } from '~/data/content'
 import { CATEGORIES } from '~/data/categories'
 import type { TypePointPersonnalise, PointPersonnalise } from '~/composables/usePointsPersonnalises'
 import type { DemandeFocus } from '~/composables/useMapFocus'
+import { SourcePmtilesMemoire } from '~/utils/pmtilesSourceMemoire'
+import { cleSourceSeville } from '~/utils/mapStyle'
 
-let protocoleEnregistre = false
+let protocolePmtiles: Protocol | null = null
 
-function enregistrerProtocolePmtiles(): void {
-  if (protocoleEnregistre) return
-  const protocole = new Protocol()
-  maplibregl.addProtocol('pmtiles', protocole.tile)
+function enregistrerProtocolePmtiles(): Protocol {
+  if (protocolePmtiles) return protocolePmtiles
+  protocolePmtiles = new Protocol()
+  maplibregl.addProtocol('pmtiles', protocolePmtiles.tile)
 
   // maplibre-gl calcule l'URL de son worker via `import.meta.url` du module lui-même
   // au lieu du motif `new Worker(new URL(...), import.meta.url)` reconnu par Vite : le
@@ -26,7 +28,7 @@ function enregistrerProtocolePmtiles(): void {
   // propre copie statique (voir scripts/build-map-data.md) et on pointe dessus.
   maplibregl.setWorkerUrl('/maplibre-gl-worker.mjs')
 
-  protocoleEnregistre = true
+  return protocolePmtiles
 }
 </script>
 
@@ -210,15 +212,21 @@ function validerAjoutPoint(): void {
 }
 
 onMounted(() => {
-  enregistrerProtocolePmtiles()
+  const protocole = enregistrerProtocolePmtiles()
 
-  // Le téléchargement du cache tuiles ne doit jamais bloquer la création de la carte :
-  // en cas d'échec (hors ligne au premier lancement), on affiche un avertissement mais
-  // la carte reste créée avec ce que le service worker a déjà en cache.
+  // Le chargement du cache tuiles ne doit jamais bloquer la création de la carte : en
+  // cas d'échec (hors ligne au premier lancement), on affiche un avertissement mais la
+  // carte reste créée. Elle utilisera alors la source distante par défaut de pmtiles
+  // (pmtiles://…), moins fiable hors ligne mais un repli acceptable pour ce cas rare.
   erreurCache.value = false
-  assurerCarteEnCache().catch(() => {
-    erreurCache.value = true
-  })
+  assurerCarteEnCache()
+    .then((tampon) => {
+      const cle = cleSourceSeville(location.origin)
+      protocole.add(new PMTiles(new SourcePmtilesMemoire(cle, tampon)))
+    })
+    .catch(() => {
+      erreurCache.value = true
+    })
 })
 
 // Nuxt enveloppe les composants .client.vue façon <ClientOnly> : au tout premier rendu

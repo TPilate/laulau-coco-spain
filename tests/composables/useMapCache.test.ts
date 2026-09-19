@@ -8,26 +8,33 @@ describe('useMapCache', () => {
 
   it('passe à "prêt" sans télécharger si le fichier est déjà en cache', async () => {
     const match = vi.fn().mockResolvedValue(new Response('deja-la'))
-    const add = vi.fn()
-    vi.stubGlobal('caches', { open: vi.fn().mockResolvedValue({ match, add }) })
+    const put = vi.fn()
+    vi.stubGlobal('caches', { open: vi.fn().mockResolvedValue({ match, put }) })
+    const fetchEspion = vi.fn()
+    vi.stubGlobal('fetch', fetchEspion)
 
     const { pret, telechargementEnCours, assurerCarteEnCache } = useMapCache()
-    await assurerCarteEnCache()
+    const tampon = await assurerCarteEnCache()
 
-    expect(add).not.toHaveBeenCalled()
+    expect(fetchEspion).not.toHaveBeenCalled()
+    expect(put).not.toHaveBeenCalled()
     expect(pret.value).toBe(true)
     expect(telechargementEnCours.value).toBe(false)
+    expect(tampon).toBeInstanceOf(ArrayBuffer)
   })
 
-  it('télécharge le fichier si absent du cache puis passe à "prêt"', async () => {
+  it('télécharge le fichier si absent du cache, le met en cache puis retourne son contenu', async () => {
     const match = vi.fn().mockResolvedValue(undefined)
-    const add = vi.fn().mockResolvedValue(undefined)
-    vi.stubGlobal('caches', { open: vi.fn().mockResolvedValue({ match, add }) })
+    const put = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('caches', { open: vi.fn().mockResolvedValue({ match, put }) })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('contenu-carte')))
 
     const { pret, assurerCarteEnCache } = useMapCache()
-    await assurerCarteEnCache()
+    const tampon = await assurerCarteEnCache()
 
-    expect(add).toHaveBeenCalledWith('/seville.pmtiles')
+    expect(fetch).toHaveBeenCalledWith('/seville.pmtiles')
+    expect(put).toHaveBeenCalledWith('/seville.pmtiles', expect.any(Response))
     expect(pret.value).toBe(true)
+    expect(tampon).toBeInstanceOf(ArrayBuffer)
   })
 })
