@@ -3,15 +3,15 @@
 ## Objectif
 
 Laura n'aime pas se voir en photo. Cette page lui montre ses photos à travers les yeux
-de Coco : chaque photo est accompagnée d'une phrase sur ce qu'il voit en elle. Elle
+de Tom : chaque photo est accompagnée d'une phrase sur ce qu'il voit en elle. Elle
 se termine sur la photo de sa story du jour (Plaza de España) et une lettre de fin.
 
 Les légendes ne commentent jamais son corps ou sa silhouette : elles parlent de sa
-lumière, son rire, sa force, et de ce que Coco ressent.
+lumière, son rire, sa force, et de ce que Tom ressent.
 
 ## Expérience
 
-Page cachée `/pour-toi` dans l'app, absente de la navigation. Coco envoie le lien.
+Page cachée `/pour-toi` dans l'app, absente de la navigation. Tom envoie le lien.
 
 1. **Enveloppe** — écran plein : « Pour toi, Laura » + bouton « Ouvrir ». Au toucher,
    fondu vers la lettre.
@@ -20,7 +20,7 @@ Page cachée `/pour-toi` dans l'app, absente de la navigation. Coco envoie le li
    défilement (IntersectionObserver), coins arrondis, ombre douce, repère de date
    discret + légende en serif italique.
 4. **Sommet** — photo de la story en pleine largeur + son texte.
-5. **Lettre de fin** + signature « Coco ».
+5. **Lettre de fin** + signature « Tom ».
 
 Pas de musique. Petits cœurs flottants discrets en fond (CSS). Toutes les animations
 sont désactivées avec `prefers-reduced-motion: reduce`.
@@ -53,11 +53,11 @@ lancé à la main (`npm run photos-laura`), sorties commitées.
 
 **Git.** `assets/laura/` ajouté au `.gitignore` : les originaux ne sont jamais
 commités. Seuls les WebP allégés dans `public/laura/` le sont. (Repo public : choix
-assumé par Coco, qui retirera les photos plus tard.)
+assumé par Tom, qui retirera les photos plus tard.)
 
 **Hors ligne.** Ajouter `webp` aux `globPatterns` workbox dans `nuxt.config.ts`.
 
-## Contenu (brouillon — à réécrire par Coco)
+## Contenu (brouillon — à réécrire par Tom)
 
 **Ouverture**
 > Laura, tu m'as dit que tu n'aimais pas te voir en photo. Alors j'ai rassemblé
@@ -97,7 +97,7 @@ assumé par Coco, qui retirera les photos plus tard.)
 >
 > Je t'aime.
 
-**Signature** — Coco
+**Signature** — Tom
 
 ## Vérifications
 
