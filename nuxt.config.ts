@@ -39,6 +39,11 @@ export default defineNuxtConfig({
       ],
     },
   },
+  // /pour-toi n'est liée depuis aucune page : le crawler de `nuxt generate` ne la
+  // trouverait pas seul.
+  nitro: {
+    prerender: { routes: ['/pour-toi'] },
+  },
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
@@ -62,7 +67,7 @@ export default defineNuxtConfig({
       // mjs : le worker MapLibre GL et son chunk partagé (public/maplibre-gl-worker.mjs,
       // public/maplibre-gl-shared.mjs) — nécessaires au décodage des tuiles vectorielles,
       // sans quoi la carte affiche un fond vide sans aucune erreur visible.
-      globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,json,woff2,pbf}'],
+      globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,json,woff2,pbf,webp}'],
       runtimeCaching: [
         {
           urlPattern: /\/seville\.pmtiles$/,

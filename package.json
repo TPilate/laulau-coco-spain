@@ -10,9 +10,11 @@
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
     "lint": "eslint .",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "photos-laura": "node scripts/preparer-photos-laura.mjs"
   },
   "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.3.0",
     "@fontsource/dm-sans": "^5.3.0",
     "@fontsource/jetbrains-mono": "^5.3.0",
     "@fontsource/space-grotesk": "^5.3.0",
