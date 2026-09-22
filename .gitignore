@@ -5,3 +5,6 @@ node_modules
 *.log
 .DS_Store
 dist
+
+# Photos originales de Laura : jamais commitées (seuls les WebP de public/laura le sont)
+assets/laura/

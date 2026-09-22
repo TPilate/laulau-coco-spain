@@ -10,7 +10,8 @@
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
     "lint": "eslint .",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "photos-laura": "node scripts/preparer-photos-laura.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
